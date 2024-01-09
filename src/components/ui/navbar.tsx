@@ -5,8 +5,8 @@ export default function NavBar() {
   return (
     <>
       <nav>
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-          <a href="#" className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between py-4">
+          <a href="#" className="flex items-center grow space-x-1 md:space-x-3">
             <Avatar>
               <AvatarImage
                 src="https://images.mid-day.com/images/images/2023/sep/andaaz1.jpg"
@@ -19,8 +19,8 @@ export default function NavBar() {
             </span>
           </a>
 
-          <div className="hidden w-full md:block md:w-auto">
-            <ModeToggle />
+          <div className="flex gap-2">
+            <div>User</div>
           </div>
         </div>
       </nav>
