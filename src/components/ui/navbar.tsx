@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ModeToggle } from "@/components/ui/modeToggle";
+// import { ModeToggle } from "@/components/ui/modeToggle";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export default function NavBar() {
   return (
@@ -20,7 +21,14 @@ export default function NavBar() {
           </a>
 
           <div className="flex gap-2">
-            <div>User</div>
+            <SignedIn>
+              {/* Mount the UserButton component */}
+              <UserButton showName />
+            </SignedIn>
+            <SignedOut>
+              {/* Signed out users get sign in button */}
+              <SignInButton />
+            </SignedOut>
           </div>
         </div>
       </nav>
