@@ -1,6 +1,9 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import { ModeToggle } from "@/components/ui/modeToggle";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { useEffect } from "react";
 
 export default function NavBar() {
   return (

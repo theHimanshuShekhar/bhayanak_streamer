@@ -1,6 +1,6 @@
 import { SearchBar } from "@/components/ui/searchBar";
 
-export default function Home() {
+export default async function Home() {
   return (
     <main className="flex flex-col items-center justify-between gap-10">
       <SearchBar />
