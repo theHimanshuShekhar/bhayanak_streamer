@@ -2,11 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 
-export function SearchBar() {
-  const [searchTerm, setSearchTerm] = useState("");
+import { SetStateAction } from "react";
 
+// this interface will satisfy if you want to pass setValuesList directly
+interface SearchBarProps {
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<SetStateAction<string>>;
+}
+
+export function SearchBar(props: SearchBarProps) {
   function createNewRoom() {}
 
   return (
@@ -16,13 +21,11 @@ export function SearchBar() {
           className="grow"
           placeholder="Search or create a streaming Room"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setSearchTerm(event.target.value)
+            props.setSearchTerm(event.target.value)
           }
         />
         <Button onClick={createNewRoom}>Create Room</Button>
       </div>
-
-      <div className="text-4xl">{searchTerm}</div>
     </>
   );
 }
