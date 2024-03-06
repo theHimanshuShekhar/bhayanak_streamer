@@ -3,6 +3,7 @@
 # dependencies
 */node_modules
 /node_modules
+node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -13,7 +14,7 @@
 # next.js
 */.next/
 .next/*
-.next/
+/.next
 /out/
 .next
 
