@@ -11,6 +11,7 @@ const io = new Server(httpServer, {
 
 // Store created room data
 roomListData = [];
+userData = {};
 
 // Whenever a new socket connects
 io.on("connection", async (socket) => {
@@ -29,6 +30,12 @@ io.on("connection", async (socket) => {
   // Send list of rooms to clients
   emitRoomList();
 
+  // Save user data in userData list
+  socket.on("updateUserData", (userDetails) => {
+    userData[socket.id] = userDetails;
+    console.log(userData);
+  });
+
   // Whenever a socket disconnects
   socket.on("disconnect", async () => {
     console.log(`Socket ${socket.id} disconnected`);
@@ -42,6 +49,10 @@ io.on("connection", async (socket) => {
 
     // Send new list of connected users to clients
     io.emit("onlineUsers", sockets.length);
+
+    // Remove user from userData list
+    delete userData[socket.id];
+    console.log(userData);
   });
 
   // Whenever a new room is created

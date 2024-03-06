@@ -6,6 +6,11 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { socket } from "@/lib/socket";
 
+interface User {
+  imageURL: String;
+  username: String;
+}
+
 export default function NavBar() {
   const [websocket, setsocket] = useState(socket);
   const [onlineUsers, setOnlineUsers] = useState(0);
@@ -17,9 +22,14 @@ export default function NavBar() {
     websocket.on("connect", () => {
       console.log(`Socket ${socket.id} connected to webserver`);
 
-      // websocket.emit("updateUserData");
+      if (user && user.username) {
+        const userData: User = {
+          imageURL: user.imageUrl,
+          username: user.username,
+        };
 
-      console.log(user);
+        websocket.emit("updateUserData", userData);
+      }
     });
 
     websocket.on("onlineUsers", (userCount) => setOnlineUsers(userCount));
@@ -27,7 +37,7 @@ export default function NavBar() {
     return () => {
       websocket.disconnect();
     };
-  }, [websocket, user]);
+  }, [websocket, user, isSignedIn, isLoaded]);
 
   return (
     <>
