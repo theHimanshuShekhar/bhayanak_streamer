@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { dark, shadesOfPurple } from "@clerk/themes";
 import NavBar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
 import "./globals.css";
@@ -20,7 +21,11 @@ export default function RootLayout({
 }) {
   return (
     <>
-      <ClerkProvider>
+      <ClerkProvider
+        appearance={{
+          baseTheme: shadesOfPurple,
+        }}
+      >
         <html lang="en" suppressHydrationWarning>
           <head />
           <body>

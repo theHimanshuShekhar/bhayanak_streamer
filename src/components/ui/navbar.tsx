@@ -1,16 +1,33 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { ModeToggle } from "@/components/ui/modeToggle";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { socket } from "@/lib/socket";
 
 export default function NavBar() {
+  const [websocket, setsocket] = useState(socket);
+  const [onlineUsers, setOnlineUsers] = useState(0);
+
+  useEffect(() => {
+    websocket.connect();
+
+    websocket.on("connect", () => {
+      console.log(`Socket ${socket.id} connected to webserver`);
+    });
+
+    websocket.on("onlineUsers", (userCount) => setOnlineUsers(userCount));
+
+    return () => {
+      websocket.disconnect();
+    };
+  }, [websocket]);
+
   return (
     <>
       <nav>
         <div className="flex flex-col sm:flex-row items-center justify-between py-4">
-          <a href="#" className="flex items-center grow space-x-1 md:space-x-3">
+          <a href="#" className="flex grow items-center space-x-1 md:space-x-3">
             <Avatar>
               <AvatarImage
                 src="https://images.mid-day.com/images/images/2023/sep/andaaz1.jpg"
@@ -23,13 +40,15 @@ export default function NavBar() {
             </span>
           </a>
 
-          <div className="flex gap-2">
+          <div className="text-sm mx-4 uppercase font-bold">
+            Online {onlineUsers}
+          </div>
+
+          <div className="flex gap-2 capitalize">
             <SignedIn>
-              {/* Mount the UserButton component */}
               <UserButton showName />
             </SignedIn>
             <SignedOut>
-              {/* Signed out users get sign in button */}
               <SignInButton />
             </SignedOut>
           </div>
