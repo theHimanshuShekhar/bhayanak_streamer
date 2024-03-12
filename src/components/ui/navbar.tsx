@@ -5,11 +5,7 @@ import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { socket } from "@/lib/socket";
-
-interface User {
-  imageURL: String;
-  username: String;
-}
+import { UserData } from "@/lib/interfaces";
 
 export default function NavBar() {
   const [websocket, setsocket] = useState(socket);
@@ -23,7 +19,7 @@ export default function NavBar() {
       console.log(`Socket ${socket.id} connected to webserver`);
 
       if (user && user.username) {
-        const userData: User = {
+        const userData: UserData = {
           imageURL: user.imageUrl,
           username: user.username,
         };

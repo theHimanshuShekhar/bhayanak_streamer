@@ -33,7 +33,6 @@ io.on("connection", async (socket) => {
   // Save user data in userData list
   socket.on("updateUserData", (userDetails) => {
     userData[socket.id] = userDetails;
-    console.log(userData);
   });
 
   // Whenever a socket disconnects
@@ -52,7 +51,6 @@ io.on("connection", async (socket) => {
 
     // Remove user from userData list
     delete userData[socket.id];
-    console.log(userData);
   });
 
   // Whenever a new room is created
@@ -62,6 +60,10 @@ io.on("connection", async (socket) => {
 
     // Put new room data in roomListData
     roomListData.push(roomData);
+  });
+
+  socket.on("getUserData", (socketID) => {
+    socket.emit("getUserData", userData[socketID]);
   });
 });
 
