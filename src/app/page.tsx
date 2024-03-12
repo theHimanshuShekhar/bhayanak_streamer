@@ -15,10 +15,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { SignedIn } from "@clerk/nextjs";
+import { SignedIn, useUser } from "@clerk/nextjs";
 import { RoomData, RoomProps, UserData } from "@/lib/interfaces";
 
 export default function Home() {
+  const { isSignedIn, user, isLoaded } = useUser();
+
   // create state to store websocket
   const [websocket] = useState(socket);
 
@@ -53,12 +55,20 @@ export default function Home() {
 
   // Send new room with details to server
   function createNewRoom(event?: any) {
+    // Users are not able to create rooms if not signed in
+    if (isLoaded && !isSignedIn) return;
+
+    // Ignore input if any other key than Enter key
     if (event.key && event.key !== "Enter") return;
+
+    // Emit createRoom event to server
     websocket.emit("createRoom", {
       roomID: searchTerm,
       streamer: socket.id,
       createdOn: new Date(),
     });
+
+    // Clear the search input box
     setSearchTerm("");
   }
 
@@ -74,7 +84,7 @@ export default function Home() {
           <Button onClick={createNewRoom}>Create Room</Button>
         </SignedIn>
       </div>
-      <div className="text-4xl py-0 h-10">
+      <div className="text-2xl py-0 h-10">
         {searchTerm.length > 0 && <>Searching &quot;{searchTerm}&quot;</>}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 w-full">
