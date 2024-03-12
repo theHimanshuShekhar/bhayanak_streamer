@@ -71,7 +71,10 @@ io.on("connection", async (socket) => {
 io.of("/").adapter.on("create-room", () => emitRoomList());
 
 // Update clients by sending new roomList whenever a room is joined
-io.of("/").adapter.on("join-room", () => emitRoomList());
+io.of("/").adapter.on("join-room", (roomID, socketID) => {
+  // Leave other rooms when joining current room
+  leaveOtherRooms(socketID, roomID);
+});
 
 // Update clients by sending new roomList whenever a room is deleted
 io.of("/").adapter.on("delete-room", (room) => {
@@ -84,6 +87,19 @@ io.of("/").adapter.on("delete-room", (room) => {
 
 // Update clients by sending new roomList whenever a room is left
 io.of("/").adapter.on("leave-room", () => emitRoomList());
+
+async function leaveOtherRooms(socketID, roomID) {
+  // Get list of all rooms that socket is connected to
+  const socket = io.sockets.sockets.get(socketID);
+
+  for (let room of Array.from(socket.rooms)) {
+    // Ignore user group and currently joining group
+    if (room == roomID || room == socketID) continue;
+
+    // Leave other remaining groups if any
+    socket.leave(room);
+  }
+}
 
 // Send roomList
 async function emitRoomList() {
