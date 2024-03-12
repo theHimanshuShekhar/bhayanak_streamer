@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { SignedIn, useUser } from "@clerk/nextjs";
 import { RoomData, RoomProps, UserData } from "@/lib/interfaces";
+import Link from "next/link";
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -56,7 +57,7 @@ export default function Home() {
   // Send new room with details to server
   function createNewRoom(event?: any) {
     // Users are not able to create rooms if not signed in
-    if (isLoaded && !isSignedIn) return;
+    // if (isLoaded && !isSignedIn) return;
 
     // Ignore input if any other key than Enter key
     if (event.key && event.key !== "Enter") return;
@@ -97,7 +98,14 @@ export default function Home() {
               return true;
             })
             .map((room: RoomData, index) => (
-              <RoomCard room={room} key={index} />
+              <Link
+                href={{
+                  pathname: "/room/" + room.roomID,
+                }}
+                key={index}
+              >
+                <RoomCard room={room} key={index} />
+              </Link>
             ))}
       </div>
     </main>
@@ -107,7 +115,7 @@ export default function Home() {
 function RoomCard(props: RoomProps) {
   const room = props.room;
   return (
-    <Card className="overflow-hidden text-purple-500">
+    <Card className="overflow-hidden text-purple-500 hover:border-4 hover:border-purple-900 hover:cursor-pointer hover:scale-110">
       <CardContent className="p-0">
         <img
           src="https://images.mid-day.com/images/images/2023/sep/andaaz1.jpg"

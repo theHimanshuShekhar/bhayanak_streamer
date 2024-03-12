@@ -1,10 +1,10 @@
 // Reusable interfaces
 
 export interface RoomData {
-  roomID: String;
-  users: String[];
+  roomID: string;
+  users: string[];
   createdOn: Date;
-  streamer: String;
+  streamer: string;
 }
 
 export interface RoomProps {
