@@ -4,7 +4,6 @@ export interface RoomData {
   roomID: string;
   users: string[];
   createdOn: Date;
-  streamer: string;
 }
 
 export interface RoomProps {

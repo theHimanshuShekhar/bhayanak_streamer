@@ -65,7 +65,6 @@ export default function Home() {
     // Emit createRoom event to server
     websocket.emit("createRoom", {
       roomID: searchTerm,
-      streamer: socket.id,
       createdOn: new Date(),
     });
 

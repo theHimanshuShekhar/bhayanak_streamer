@@ -64,6 +64,11 @@ io.on("connection", async (socket) => {
     roomListData.push(roomData);
   });
 
+  socket.on("joinRoom", async (roomID) => {
+    // Join room with roomID
+    socket.join(roomID);
+  }) 
+
   socket.on("getUserData", (socketID) => {
     socket.emit("getUserData", userData[socketID]);
   });
@@ -76,6 +81,12 @@ io.of("/").adapter.on("create-room", () => emitRoomList());
 io.of("/").adapter.on("join-room", (roomID, socketID) => {
   // Leave other rooms when joining current room
   leaveOtherRooms(socketID, roomID);
+
+  // update everyone in room
+  updateRoomUsers(roomID)
+
+  // Send new list of rooms to clients
+  emitRoomList()
 });
 
 // Update clients by sending new roomList whenever a room is deleted
@@ -88,7 +99,14 @@ io.of("/").adapter.on("delete-room", (room) => {
 });
 
 // Update clients by sending new roomList whenever a room is left
-io.of("/").adapter.on("leave-room", () => emitRoomList());
+io.of("/").adapter.on("leave-room", (room, socket) => {
+
+  // update everyone in room
+  updateRoomUsers(room)
+
+  // Send new list of rooms to clients
+  emitRoomList()
+});
 
 async function leaveOtherRooms(socketID, roomID) {
   // Get list of all rooms that socket is connected to
@@ -101,6 +119,36 @@ async function leaveOtherRooms(socketID, roomID) {
     // Leave other remaining groups if any
     socket.leave(room);
   }
+}
+
+async function updateRoomUsers(roomID) {
+  console.log(`updating users in room ${roomID}`)
+
+  
+  // Get Map of all rooms in this namespace
+  const rooms = io.of("/").adapter.rooms;
+
+    /* Extract roomData from room Map, merge with roomListData
+  and make consolidated Object to send to clients */
+  
+  const room = rooms.get(roomID)
+
+  // Return if no room
+  if(!room) return
+
+  // merge RoomData back into roomList sent to clients
+  const roomData = roomListData.filter(
+    (roomData) => roomData.roomID === roomID
+  )[0];
+
+  let roomDataResponse = {
+    roomID: roomID,
+    users: Array.from(room),
+    createdOn: (roomData && roomData.createdOn) ? roomData.createdOn : new Date()
+  }
+
+
+  io.to(roomID).emit("roomData", roomDataResponse)
 }
 
 // Send roomList
@@ -132,6 +180,8 @@ async function emitRoomList() {
       roomList.push({ ...roomJson, ...roomData });
     }
   }
+
+  console.log(roomList)
 
   // Send consolidate roomList with roomData back to clients
   io.emit("roomList", roomList);

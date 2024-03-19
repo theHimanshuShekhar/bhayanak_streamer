@@ -1,5 +1,6 @@
 "use client";
 
+import { RoomData } from "@/lib/interfaces";
 import { socket } from "@/lib/socket";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,19 +13,25 @@ export default function RoomComponent() {
   const [roomID] = useState<string | null>(
     typeof params.roomID === "string" ? params.roomID : null
   );
+  const [roomData, setRoomData] = useState<RoomData>();
 
   useEffect(() => {
-    websocket.connect();
+    if(!websocket.active) websocket.connect();
+
+    websocket.emit("joinRoom", roomID)
+
+    websocket.on("roomData", (roomData) => setRoomData(roomData))
 
     return () => {
       // Explicitly disconnect from socket server on component derender
       websocket.disconnect();
     };
-  }, [websocket]);
+  }, [roomID, websocket]);
 
   return (
     <>
       <div className="text-9xl">{roomID}</div>
+      {JSON.stringify(roomData)}
     </>
   );
 }
