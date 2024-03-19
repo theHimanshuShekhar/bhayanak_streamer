@@ -14,11 +14,8 @@ export default function NavBar() {
   const { isSignedIn, user, isLoaded } = useUser();
 
   useEffect(() => {
-    websocket.connect();
-
+    
     websocket.on("connect", () => {
-      console.log(`Socket ${socket.id} connected to webserver`);
-
       if (user && user.username) {
         const userData: UserData = {
           imageURL: user.imageUrl,
