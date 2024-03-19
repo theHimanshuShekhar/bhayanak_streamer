@@ -14,6 +14,7 @@ export default function NavBar() {
   const { isSignedIn, user, isLoaded } = useUser();
 
   useEffect(() => {
+    if(!websocket.active) websocket.connect();
     
     websocket.on("connect", () => {
       if (user && user.username) {

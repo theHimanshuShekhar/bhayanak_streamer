@@ -35,7 +35,7 @@ export default function Home() {
   // Run on component render/re-render
   useEffect(() => {
     // Explicitly connect to websocket server as autoconnect is turned off
-    websocket.connect();
+    if(!websocket.active) websocket.connect();
 
     // When websocket connection is established
     websocket.on("connect", () => {
