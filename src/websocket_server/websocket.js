@@ -1,7 +1,9 @@
 const { createServer } = require("http");
+const express = require("express");
 const { Server } = require("socket.io");
 
-const httpServer = createServer();
+const app = express();
+const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
@@ -135,9 +137,14 @@ async function emitRoomList() {
   io.emit("roomList", roomList);
 }
 
+// Serve HTML file when user accesses the server from a browser
+app.get('/', (req, res) => {
+  res.send("<h1>Bhayanak Streamer Websocket server</h1>");
+});
+
 // Server is listening on PORT 5000
-httpServer.listen(5000, () => {
+httpServer.listen( 5000, () => {
   // Disconnect all dangling sockets on server start
   io.disconnectSockets();
-  console.log("Server is listening to the port 5000");
+  console.log(`Server is listening to the port ${httpServer.address().port}`);
 });

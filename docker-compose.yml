@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   frontend:
+    container_name: bhayanak_streamer
     depends_on:
       - websocket_server
     build:
@@ -11,13 +12,10 @@ services:
       - 3000:3000
   
   websocket_server:
+    container_name: websocket_server
     build:
       context: .
       dockerfile: Dockerfile.backend
     restart: unless-stopped
     ports:
     - 5000:5000
-
-networks:
-  bhayanak_network:
-    external: true

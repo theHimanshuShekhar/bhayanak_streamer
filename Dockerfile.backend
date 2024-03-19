@@ -1,4 +1,4 @@
-FROM node:slim
+FROM imbios/bun-node
 
 WORKDIR /app
 
@@ -6,11 +6,11 @@ COPY package*.json ./
 
 COPY . .
 
-RUN npm install
-RUN npm install -g nodemon
+RUN bun install
+RUN bun install -g nodemon
 
 ENV PORT 5000
 
 EXPOSE 5000
 
-CMD ["npm", "run", "websocket_server"]
+CMD ["bun", "run", "websocket_server"]

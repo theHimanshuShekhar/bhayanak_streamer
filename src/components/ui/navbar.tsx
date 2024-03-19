@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { socket } from "@/lib/socket";
 import { UserData } from "@/lib/interfaces";
+import Link from "next/link";
 
 export default function NavBar() {
   const [websocket, setsocket] = useState(socket);
@@ -39,7 +40,10 @@ export default function NavBar() {
     <>
       <nav>
         <div className="flex flex-col sm:flex-row items-center justify-between py-4">
-          <a href="#" className="flex grow items-center space-x-1 md:space-x-3">
+          <Link
+            href="/"
+            className="flex grow items-center space-x-1 md:space-x-3"
+          >
             <Avatar>
               <AvatarImage
                 src="https://images.mid-day.com/images/images/2023/sep/andaaz1.jpg"
@@ -50,7 +54,7 @@ export default function NavBar() {
             <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
               Bhayanak Streamer
             </span>
-          </a>
+          </Link>
 
           <div className="text-sm mx-4 uppercase font-bold">
             Online {onlineUsers}
