@@ -4,12 +4,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { SetStateAction, useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
-import socket from "@/lib/socket";
 import { UserData } from "@/lib/interfaces";
 import Link from "next/link";
+import getSocket from "@/lib/socket";
 
 export default function NavBar() {
-  const [websocket] = useState(socket);
+  const [websocket] = useState(getSocket(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER));
   const [onlineUsers, setOnlineUsers] = useState(0);
   const { isSignedIn, user, isLoaded } = useUser();
 

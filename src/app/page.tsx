@@ -2,7 +2,7 @@
 "use client";
 
 import { SearchBar } from "@/components/ui/searchBar";
-import socket from "@/lib/socket"
+import getSocket from "@/lib/socket"
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
@@ -23,7 +23,7 @@ export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
 
   // create state to store websocket
-  const [websocket] = useState(socket);
+  const [websocket] = useState(getSocket(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER));
 
   /* searchTerm and setSearchTerm passed into SearchBar 
   child component to get input for createRoom */

@@ -1,15 +1,11 @@
 
 import { io } from "socket.io-client";
 
-if (process.env.NEXT_PUBLIC_WEBSOCKET_SERVER) {
-  console.log(`Connecting to ${process.env.NEXT_PUBLIC_WEBSOCKET_SERVER}`);
-} else {
-  console.log("cannot read process.env.NEXT_PUBLIC_WEBSOCKET_SERVER");
+const getSocket = (websocket_server_path) => {
+  return socket = io(websocket_server_path, {
+    autoConnect: false,
+  });
 }
 
-const socket = io(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER, {
-  autoConnect: false,
-});
-
-export default socket;
+export default getSocket;
 

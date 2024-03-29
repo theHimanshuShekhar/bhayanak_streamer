@@ -1,7 +1,7 @@
 "use client";
 
 import { RoomData } from "@/lib/interfaces";
-import socket from "@/lib/socket"
+import getSocket from "@/lib/socket";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -9,7 +9,7 @@ export default function RoomComponent() {
   const params = useParams();
 
   // create state to store websocket
-  const [websocket] = useState(socket);
+  const [websocket] = useState(getSocket(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER));
   const [roomID] = useState<string | null>(
     typeof params.roomID === "string" ? params.roomID : null
   );
