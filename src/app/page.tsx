@@ -2,7 +2,7 @@
 "use client";
 
 import { SearchBar } from "@/components/ui/searchBar";
-import { socket } from "../lib/socket";
+import socket from "@/lib/socket"
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
@@ -43,7 +43,7 @@ export default function Home() {
     });
 
     // Receive roomList from server
-    websocket.on("roomList", (roomListResponse) =>
+    websocket.on("roomList", (roomListResponse: never[]) =>
       // Set roomList in state
       setRoomList(roomListResponse)
     );

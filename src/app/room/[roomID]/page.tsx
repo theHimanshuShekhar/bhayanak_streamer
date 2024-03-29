@@ -1,7 +1,7 @@
 "use client";
 
 import { RoomData } from "@/lib/interfaces";
-import { socket } from "@/lib/socket";
+import socket from "@/lib/socket"
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
