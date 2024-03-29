@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   frontend:
     container_name: bhayanak_streamer
@@ -11,13 +10,10 @@ services:
     env_file:
     - .env.production  # Use this for production
     # - .env.development  # Use this for development, uncomment if needed
-  
+
   websocket_server:
     container_name: websocket_server
     image: "ghcr.io/thehimanshushekhar/bhayanak_streamer/backend"
     restart: unless-stopped
     ports:
     - 5000:5000
-    env_file:
-      - .env.production  # Use this for production
-      # - .env.development  # Use this for development, uncomment if needed
