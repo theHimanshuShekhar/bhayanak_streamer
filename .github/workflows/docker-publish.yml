@@ -62,7 +62,7 @@ jobs:
           context: .
           file: Dockerfile.frontend
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:frontend
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
 
       # Backend Dockerfile build and push
       - name: Build and push Backend Docker image
@@ -72,4 +72,4 @@ jobs:
           context: .
           file: Dockerfile.backend
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:backend
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
