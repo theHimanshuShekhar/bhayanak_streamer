@@ -2,7 +2,6 @@
 "use client";
 
 import { SearchBar } from "@/components/ui/searchBar";
-import getSocket from "@/lib/socket"
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
@@ -19,11 +18,16 @@ import { SignedIn, useUser } from "@clerk/nextjs";
 import { RoomData, RoomProps, UserData } from "@/lib/interfaces";
 import Link from "next/link";
 
+import { useSocketStore } from "@/store/socketStore";
+import type { Socket } from "socket.io-client";
+
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
 
-  // create state to store websocket
-  const [websocket] = useState(getSocket(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER));
+  // grab socket from zustand socket store
+  const websocket: Socket = useSocketStore((state) => state.socket);
 
   /* searchTerm and setSearchTerm passed into SearchBar 
   child component to get input for createRoom */
@@ -32,10 +36,9 @@ export default function Home() {
   // roomList holding roomData to populate list of available rooms
   const [roomList, setRoomList] = useState([]);
 
-  // Run on component render/re-render
   useEffect(() => {
     // Explicitly connect to websocket server as autoconnect is turned off
-    if(!websocket.active) websocket.connect();
+    if (!websocket.active) websocket.connect();
 
     // When websocket connection is established
     websocket.on("connect", () => {
@@ -48,16 +51,15 @@ export default function Home() {
       setRoomList(roomListResponse)
     );
 
-    return () => {
-      // Explicitly disconnect from socket server on component derender
-      websocket.disconnect();
-    };
+    // return () => {
+    //   websocket.close();
+    // };
   }, [websocket]);
 
   // Send new room with details to server
   function createNewRoom(event?: any) {
     // Users are not able to create rooms if not signed in
-    // if (isLoaded && !isSignedIn) return;
+    if (isLoaded && !isSignedIn) return;
 
     // Ignore input if any other key than Enter key
     if (event.key && event.key !== "Enter") return;
@@ -150,15 +152,14 @@ function RoomCard(props: RoomProps) {
 }
 
 function ConnectedUsersList(props: { socketID: String }) {
-  
-  // create state to store websocket
-  const [websocket] = useState(getSocket(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER));
+  // grab socket from zustand socket store
+  const websocket = useSocketStore((state) => state.socket);
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
     websocket.emit("getUserData", props.socketID);
     websocket.on("getUserData", (userData: UserData) => setUserData(userData));
-  });
+  }, [websocket, props.socketID]);
 
   return (
     <>

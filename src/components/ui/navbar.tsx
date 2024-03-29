@@ -2,20 +2,22 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { UserData } from "@/lib/interfaces";
 import Link from "next/link";
-import getSocket from "@/lib/socket";
+
+import { useSocketStore } from "@/store/socketStore";
 
 export default function NavBar() {
-  const [websocket] = useState(getSocket(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER));
+  const websocket = useSocketStore((state) => state.socket);
+
   const [onlineUsers, setOnlineUsers] = useState(0);
   const { isSignedIn, user, isLoaded } = useUser();
 
   useEffect(() => {
-    if(!websocket.active) websocket.connect();
-    
+    if (!websocket.active) websocket.connect();
+
     websocket.on("connect", () => {
       if (user && user.username) {
         const userData: UserData = {
@@ -27,7 +29,9 @@ export default function NavBar() {
       }
     });
 
-    websocket.on("onlineUsers", (userCount: number) => setOnlineUsers(userCount));
+    websocket.on("onlineUsers", (userCount: number) =>
+      setOnlineUsers(userCount)
+    );
 
     return () => {
       websocket.disconnect();

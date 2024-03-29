@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { dark, shadesOfPurple } from "@clerk/themes";
+import { shadesOfPurple } from "@clerk/themes";
 import NavBar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Bhayanak Streamer",
