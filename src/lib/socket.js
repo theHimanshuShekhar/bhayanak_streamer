@@ -1,11 +1,8 @@
-
 import { io } from "socket.io-client";
 
 const getSocket = (websocket_server_path) => {
-  return socket = io(websocket_server_path, {
-    autoConnect: false,
-  });
-}
+  const socket = io(websocket_server_path, { autoConnect: false });
+  return socket;
+};
 
 export default getSocket;
-
