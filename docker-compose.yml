@@ -4,18 +4,14 @@ services:
     container_name: bhayanak_streamer
     depends_on:
       - websocket_server
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
+    image: "ghcr.io/thehimanshushekhar/bhayanak_streamer/frontend"
     restart: unless-stopped
     ports:
       - 3000:3000
   
   websocket_server:
     container_name: websocket_server
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
+    image: "ghcr.io/thehimanshushekhar/bhayanak_streamer/backend"
     restart: unless-stopped
     ports:
     - 5000:5000
