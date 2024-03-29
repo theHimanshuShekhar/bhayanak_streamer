@@ -8,6 +8,9 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
+    env_file:
+    - .env.production  # Use this for production
+    # - .env.development  # Use this for development, uncomment if needed
   
   websocket_server:
     container_name: websocket_server
@@ -15,3 +18,6 @@ services:
     restart: unless-stopped
     ports:
     - 5000:5000
+    env_file:
+      - .env.production  # Use this for production
+      # - .env.development  # Use this for development, uncomment if needed
