@@ -39,7 +39,7 @@ export default function Home() {
 
     // When websocket connection is established
     websocket.on("connect", () => {
-      console.log(`Socket ${socket.id} connected to webserver`);
+      console.log(`Socket ${websocket.id} connected to webserver`);
     });
 
     // Receive roomList from server
@@ -150,11 +150,14 @@ function RoomCard(props: RoomProps) {
 }
 
 function ConnectedUsersList(props: { socketID: String }) {
+  
+  // create state to store websocket
+  const [websocket] = useState(getSocket(process.env.NEXT_PUBLIC_WEBSOCKET_SERVER));
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    socket.emit("getUserData", props.socketID);
-    socket.on("getUserData", (userData: UserData) => setUserData(userData));
+    websocket.emit("getUserData", props.socketID);
+    websocket.on("getUserData", (userData: UserData) => setUserData(userData));
   });
 
   return (
