@@ -11,31 +11,40 @@ export default function RoomComponent() {
 
   const params = useParams();
 
-  const [roomID] = useState<string | null>(
-    typeof params.roomID === "string" ? params.roomID : null
-  );
+  const roomID = typeof params.roomID === "string" ? params.roomID : null;
+
   const [roomData, setRoomData] = useState<RoomData>();
 
   useEffect(() => {
-    // Explicitly connect to websocket server as autoconnect is turned off
     if (!websocket.connected) websocket.connect();
 
-    websocket.emit("joinRoom", roomID);
+    // When websocket connection is established
+    websocket.on("connect", () => {
+      console.log(`Socket ${websocket.id} connected to webserver`);
 
-    websocket.on("roomData", (roomData: SetStateAction<RoomData | undefined>) =>
-      setRoomData(roomData)
-    );
+      websocket.emit("joinRoom", roomID);
+
+      websocket.on(
+        "roomData",
+        (roomData: SetStateAction<RoomData | undefined>) =>
+          setRoomData(roomData)
+      );
+    });
 
     return () => {
-      // Explicitly disconnect from socket server on component derender
-      websocket.disconnect();
+      websocket.close();
     };
-  }, [roomID, websocket]);
+  }, [websocket, roomID]);
 
   return (
     <>
       <div className="text-9xl">{roomID}</div>
       {JSON.stringify(roomData)}
+
+      {roomData &&
+        roomData.users.map((user) => {
+          <div>user</div>;
+        })}
     </>
   );
 }

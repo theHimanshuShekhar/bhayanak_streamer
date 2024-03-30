@@ -66,15 +66,6 @@ export default function Home() {
     // Ignore input if any other key than Enter key
     if (event.key && event.key !== "Enter") return;
 
-    // Emit createRoom event to server
-    websocket.emit("createRoom", {
-      roomID: searchTerm.trim().replaceAll(" ", "_"),
-      createdOn: new Date(),
-    });
-
-    // Clear the search input box
-    // setSearchTerm("");
-
     router.push(`/room/${searchTerm.trim().replaceAll(" ", "_")}`);
   }
 
