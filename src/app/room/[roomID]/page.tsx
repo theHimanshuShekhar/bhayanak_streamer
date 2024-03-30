@@ -38,23 +38,25 @@ export default function RoomComponent() {
   return (
     <>
       {roomData && (
-        <div className="grid grid-cols-5 gap-4">
-          <div className="col-span-5 lg:col-span-4 w-full grid grid-cols-2 gap-2">
-            {roomData.users.map((user, index) => (
-              <UserWindow
-                user={user}
-                index={index}
-                userListLength={roomData.users.length}
-                key={index}
-              />
-            ))}
+        <div className="grow grid grid-cols-5 grid-rows-1 gap-4">
+          <div className="col-span-5 lg:col-span-4 w-full">
+            <div className="grid grid-cols-2 gap-2">
+              {roomData.users.map((user, index) => (
+                <UserWindow
+                  user={user}
+                  index={index}
+                  userListLength={roomData.users.length}
+                  key={index}
+                />
+              ))}
+            </div>
           </div>
-          <div className="col-span-5 lg:col-span-1 border rounded-lg">
+          <div className="col-span-5 lg:col-span-1 border-2 rounded-lg">
             <div className="flex flex-col h-full">
               <div className="border rounded-lg p-2 py-3 text-center text-lg lg:text-xl font-semibold text-ellipsis overflow-hidden">
                 {roomID}
               </div>
-              <div className="grow">chat box</div>
+              <div className="grow px-2">chat box</div>
               <input
                 type="text"
                 placeholder="Enter your message"
@@ -81,20 +83,23 @@ function UserWindow(props: {
     <>
       {userData && (
         <div
-          // className="p-40 border rounded-lg text-center align-middle"
-          className={`px-2 py-20 md:px-4 lg:p-40 border rounded-lg text-center align-middle ${
+          // style={{
+          //   background: `rgb(${get_average_rgb(userData.imageURL)})`,
+          // }}
+          className={`px-2 py-10 md:px-4 lg:px-40 border-2 rounded-lg text-center align-middle ${
             userListLength == 1 ||
             (index === userListLength - 1 && userListLength % 2 !== 0)
               ? "col-span-2"
               : ""
           }`}
         >
-          <div className="flex flex-col w-full border">
-            <Avatar className="-mx-1 rounded-full border-2 border-purple-500">
+          <div className="flex flex-col w-full items-center capitalize">
+            <Avatar className="rounded-full h-24 w-24 border-2 border-purple-500">
               <AvatarImage
-                className="rounded-full h-8 overflow-hidden"
+                className="rounded-full overflow-hidden"
                 src={userData.imageURL}
                 alt={userData.username}
+                sizes="lg"
               />
               <AvatarFallback>{userData.username}</AvatarFallback>
             </Avatar>
@@ -104,4 +109,20 @@ function UserWindow(props: {
       )}
     </>
   );
+}
+
+function get_average_rgb(src: string) {
+  let context = document.createElement("canvas").getContext("2d");
+  context!.imageSmoothingEnabled = true;
+
+  let img = new Image();
+  img.src = src;
+  img.crossOrigin = "";
+
+  context!.drawImage(img, 0, 0, 1, 1);
+  const final_color = context!
+    .getImageData(0, 0, 1, 1)
+    .data.slice(0, 3)
+    .join(",");
+  return final_color;
 }

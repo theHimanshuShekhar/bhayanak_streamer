@@ -34,7 +34,9 @@ export default function RootLayout({
             >
               <div className="flex flex-col min-h-screen p-2 sm:container">
                 <NavBar />
-                <div className="grow">{children}</div>
+                <div className="grow min-h-vh overflow-x-auto overflow-y-hidden flex flex-col">
+                  {children}
+                </div>
                 <Footer />
               </div>
             </ThemeProvider>
