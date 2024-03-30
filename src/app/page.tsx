@@ -112,6 +112,9 @@ export default function Home() {
 
 function RoomCard(props: RoomProps) {
   const room = props.room;
+
+  console.log("RoomCard", room);
+
   return (
     <Card className="overflow-hidden text-purple-500 hover:border-4 hover:border-purple-900 hover:cursor-pointer hover:scale-110">
       <CardContent className="p-0">
@@ -125,8 +128,8 @@ function RoomCard(props: RoomProps) {
           {room.roomID.replaceAll("_", " ")}
         </CardTitle>
         <CardDescription className="items-center justify-start py-1 px-2 rounded-full flex w-full text-sm font-bold">
-          {room.users.slice(0, 9).map((userID, key) => (
-            <ConnectedUsersList socketID={userID} key={key} />
+          {room.users.slice(0, 9).map((userData, key) => (
+            <ConnectedUsersList user={userData} key={key} />
           ))}
         </CardDescription>
       </CardHeader>
@@ -148,16 +151,8 @@ function RoomCard(props: RoomProps) {
   );
 }
 
-function ConnectedUsersList(props: { socketID: String }) {
-  // grab socket from zustand socket store
-  const websocket = useSocketStore((state) => state.socket);
-  const [userData, setUserData] = useState<UserData | null>(null);
-
-  useEffect(() => {
-    websocket.emit("getUserData", props.socketID);
-    websocket.on("getUserData", (userData: UserData) => setUserData(userData));
-  }, [websocket, props.socketID]);
-
+function ConnectedUsersList(props: { user: UserData }) {
+  const userData = props.user;
   return (
     <>
       {userData && (

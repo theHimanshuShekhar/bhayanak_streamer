@@ -2,7 +2,7 @@
 
 export interface RoomData {
   roomID: string;
-  users: string[];
+  users: UserData[];
   createdOn: Date;
 }
 
