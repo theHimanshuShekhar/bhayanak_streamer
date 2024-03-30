@@ -17,7 +17,8 @@ export default function RoomComponent() {
   const [roomData, setRoomData] = useState<RoomData>();
 
   useEffect(() => {
-    if (!websocket.active) websocket.connect();
+    // Explicitly connect to websocket server as autoconnect is turned off
+    if (!websocket.connected) websocket.connect();
 
     websocket.emit("joinRoom", roomID);
 

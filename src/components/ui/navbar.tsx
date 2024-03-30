@@ -8,15 +8,17 @@ import { UserData } from "@/lib/interfaces";
 import Link from "next/link";
 
 import { useSocketStore } from "@/store/socketStore";
+import type { Socket } from "socket.io-client";
 
 export default function NavBar() {
-  const websocket = useSocketStore((state) => state.socket);
+  const websocket: Socket = useSocketStore((state) => state.socket);
 
   const [onlineUsers, setOnlineUsers] = useState(0);
   const { isSignedIn, user, isLoaded } = useUser();
 
   useEffect(() => {
-    if (!websocket.active) websocket.connect();
+    // Explicitly connect to websocket server as autoconnect is turned off
+    if (!websocket.connected) websocket.connect();
 
     websocket.on("connect", () => {
       if (user && user.username) {
@@ -34,7 +36,7 @@ export default function NavBar() {
     );
 
     return () => {
-      websocket.disconnect();
+      websocket.close();
     };
   }, [websocket, user, isSignedIn, isLoaded]);
 

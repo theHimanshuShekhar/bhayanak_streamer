@@ -22,6 +22,7 @@ io.on("connection", async (socket) => {
   // Get list of connected sockets
   const sockets = await io.fetchSockets();
   console.log(
+    "User Connected",
     "Connected Sockets",
     sockets.map((socket) => socket.id)
   );
@@ -44,6 +45,7 @@ io.on("connection", async (socket) => {
     // Get new list of connected sockets
     const sockets = await io.fetchSockets();
     console.log(
+      "User Disconnected",
       "Connected Sockets",
       sockets.map((socket) => socket.id)
     );
@@ -67,7 +69,7 @@ io.on("connection", async (socket) => {
   socket.on("joinRoom", async (roomID) => {
     // Join room with roomID
     socket.join(roomID);
-  }) 
+  });
 
   socket.on("getUserData", (socketID) => {
     socket.emit("getUserData", userData[socketID]);
@@ -78,15 +80,15 @@ io.on("connection", async (socket) => {
 io.of("/").adapter.on("create-room", () => emitRoomList());
 
 // Update clients by sending new roomList whenever a room is joined
-io.of("/").adapter.on("join-room", (roomID, socketID) => {
+io.of("/").adapter.on("join-room", (room, socket) => {
   // Leave other rooms when joining current room
-  leaveOtherRooms(socketID, roomID);
+  leaveOtherRooms(socket, room);
 
   // update everyone in room
-  updateRoomUsers(roomID)
+  updateRoomUsers(room);
 
   // Send new list of rooms to clients
-  emitRoomList()
+  emitRoomList();
 });
 
 // Update clients by sending new roomList whenever a room is deleted
@@ -100,12 +102,13 @@ io.of("/").adapter.on("delete-room", (room) => {
 
 // Update clients by sending new roomList whenever a room is left
 io.of("/").adapter.on("leave-room", (room, socket) => {
-
+  // Donot take action if user leaves their own room
+  if (room === socket) return;
   // update everyone in room
-  updateRoomUsers(room)
+  updateRoomUsers(room);
 
   // Send new list of rooms to clients
-  emitRoomList()
+  emitRoomList();
 });
 
 async function leaveOtherRooms(socketID, roomID) {
@@ -122,19 +125,18 @@ async function leaveOtherRooms(socketID, roomID) {
 }
 
 async function updateRoomUsers(roomID) {
-  console.log(`updating users in room ${roomID}`)
+  console.log(`updating users in room ${roomID}`);
 
-  
   // Get Map of all rooms in this namespace
   const rooms = io.of("/").adapter.rooms;
 
-    /* Extract roomData from room Map, merge with roomListData
+  /* Extract roomData from room Map, merge with roomListData
   and make consolidated Object to send to clients */
-  
-  const room = rooms.get(roomID)
+
+  const room = rooms.get(roomID);
 
   // Return if no room
-  if(!room) return
+  if (!room) return;
 
   // merge RoomData back into roomList sent to clients
   const roomData = roomListData.filter(
@@ -144,11 +146,10 @@ async function updateRoomUsers(roomID) {
   let roomDataResponse = {
     roomID: roomID,
     users: Array.from(room),
-    createdOn: (roomData && roomData.createdOn) ? roomData.createdOn : new Date()
-  }
+    createdOn: roomData && roomData.createdOn ? roomData.createdOn : new Date(),
+  };
 
-
-  io.to(roomID).emit("roomData", roomDataResponse)
+  io.to(roomID).emit("roomData", roomDataResponse);
 }
 
 // Send roomList
@@ -181,19 +182,17 @@ async function emitRoomList() {
     }
   }
 
-  console.log(roomList)
-
   // Send consolidate roomList with roomData back to clients
   io.emit("roomList", roomList);
 }
 
 // Serve HTML file when user accesses the server from a browser
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send("<h1>Bhayanak Streamer Websocket server</h1>");
 });
 
 // Server is listening on PORT 5000
-httpServer.listen( 5000, () => {
+httpServer.listen(5000, () => {
   // Disconnect all dangling sockets on server start
   io.disconnectSockets();
   console.log(`Server is listening to the port ${httpServer.address().port}`);

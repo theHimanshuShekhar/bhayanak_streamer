@@ -20,6 +20,7 @@ import Link from "next/link";
 
 import { useSocketStore } from "@/store/socketStore";
 import type { Socket } from "socket.io-client";
+import { useRouter } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -36,14 +37,12 @@ export default function Home() {
   // roomList holding roomData to populate list of available rooms
   const [roomList, setRoomList] = useState([]);
 
+  // get router object
+  const router = useRouter();
+
   useEffect(() => {
     // Explicitly connect to websocket server as autoconnect is turned off
-    if (!websocket.active) websocket.connect();
-
-    // When websocket connection is established
-    websocket.on("connect", () => {
-      console.log(`Socket ${websocket.id} connected to webserver`);
-    });
+    // if (!websocket.connected) websocket.connect();
 
     // Receive roomList from server
     websocket.on("roomList", (roomListResponse: never[]) =>
@@ -51,13 +50,16 @@ export default function Home() {
       setRoomList(roomListResponse)
     );
 
-    // return () => {
-    //   websocket.close();
-    // };
+    return () => {
+      websocket.close();
+    };
   }, [websocket]);
 
   // Send new room with details to server
   function createNewRoom(event?: any) {
+    // Donot create room if no text in inputted
+    if (searchTerm.length < 1) return;
+
     // Users are not able to create rooms if not signed in
     if (isLoaded && !isSignedIn) return;
 
@@ -66,12 +68,14 @@ export default function Home() {
 
     // Emit createRoom event to server
     websocket.emit("createRoom", {
-      roomID: searchTerm,
+      roomID: searchTerm.trim().replaceAll(" ", "_"),
       createdOn: new Date(),
     });
 
     // Clear the search input box
-    setSearchTerm("");
+    // setSearchTerm("");
+
+    router.push(`/room/${searchTerm.trim().replaceAll(" ", "_")}`);
   }
 
   return (
@@ -83,7 +87,9 @@ export default function Home() {
           createNewRoom={createNewRoom}
         />
         <SignedIn>
-          <Button onClick={createNewRoom}>Create Room</Button>
+          <Button onClick={createNewRoom} disabled={searchTerm.length < 1}>
+            Create Room
+          </Button>
         </SignedIn>
       </div>
       <div className="text-2xl py-0 h-10">
@@ -125,7 +131,7 @@ function RoomCard(props: RoomProps) {
       </CardContent>
       <CardHeader className="py-1 px-3">
         <CardTitle className="text-ellipsis overflow-hidden">
-          {room.roomID}
+          {room.roomID.replaceAll("_", " ")}
         </CardTitle>
         <CardDescription className="items-center justify-start py-1 px-2 rounded-full flex w-full text-sm font-bold">
           {room.users.slice(0, 9).map((userID, key) => (

@@ -1,10 +1,17 @@
-"use client";
-
 import { io } from "socket.io-client";
 import { create } from "zustand";
 
-export const useSocketStore = create((set) => ({
-  socket: io("https://websocket_streamer.bhayanak.net", {
-    autoConnect: true,
-  }),
+const websocket = io("https://websocket_streamer.bhayanak.net", {
+  autoConnect: false,
+});
+
+export const useSocketStore = create(() => ({
+  socket: websocket,
 }));
+
+// When websocket connection is established
+websocket.on("connect", () => {
+  console.log(`Socket ${websocket.id} connected to webserver`);
+});
+
+websocket.on();
