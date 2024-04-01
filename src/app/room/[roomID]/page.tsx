@@ -3,8 +3,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RoomData, UserData } from "@/lib/interfaces";
 import { useSocketStore } from "@/store/socketStore";
+import { useUser } from "@clerk/nextjs";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
+import type { Socket } from "socket.io-client";
 
 export default function RoomComponent() {
   // grab socket from zustand socket store
@@ -38,8 +40,8 @@ export default function RoomComponent() {
   return (
     <>
       {roomData && (
-        <div className="grow grid grid-cols-5 grid-rows-1 gap-4">
-          <div className="col-span-5 lg:col-span-4 w-full">
+        <div className="flex-1 flex flex-col gap-1">
+          <div className="w-full overflow-y-scroll no-scrollbar flex-grow-0 flex-shrink-0 h-3/4 max-h-3/4 min-h-3/4">
             <div className="grid grid-cols-2 gap-2">
               {roomData.users.map((user, index) => (
                 <UserWindow
@@ -51,22 +53,82 @@ export default function RoomComponent() {
               ))}
             </div>
           </div>
-          <div className="col-span-5 lg:col-span-1 border-2 rounded-lg">
-            <div className="flex flex-col h-full">
-              <div className="border rounded-lg p-2 py-3 text-center text-lg lg:text-xl font-semibold text-ellipsis overflow-hidden">
-                {roomID}
-              </div>
-              <div className="grow px-2">chat box</div>
-              <input
-                type="text"
-                placeholder="Enter your message"
-                className="rounded-lg p-2 m-2"
-              />
-            </div>
-          </div>
+          {roomID && <ChatRoom roomID={roomID} />}
         </div>
       )}
     </>
+  );
+}
+
+interface RoomMessage {
+  username: string;
+  imageURL: string;
+  messageContent: string;
+}
+
+function ChatRoom(props: { roomID: string }) {
+  const [messageText, setMessageText] = useState("");
+  const { isSignedIn, user, isLoaded } = useUser();
+  const [messageList, setMessageList] = useState<RoomMessage[]>([]);
+
+  // grab socket from zustand socket store
+  const websocket = useSocketStore((state) => state.socket);
+
+  const sendMessage = (event: any) => {
+    // Donot create room if no text in inputted
+    if (messageText.length < 1) return;
+
+    // Users are not able to create rooms if not signed in
+    if (isLoaded && !isSignedIn) return;
+
+    // Ignore input if any other key than Enter key
+    if (event.code && event.code !== "Enter") return;
+
+    if (!user || !isSignedIn || !isLoaded) return;
+
+    websocket.emit("sendRoomMessage", {
+      roomID: props.roomID,
+      username: user.username,
+      imageURL: user.imageUrl,
+      messageContent: messageText,
+    });
+
+    setMessageText("");
+  };
+
+  useEffect(() => {
+    websocket.on("roomMessage", (roomMessage: RoomMessage) =>
+      setMessageList([...messageList, roomMessage])
+    );
+  }, [messageList, websocket]);
+
+  return (
+    <div className="rounded-lg flex-grow flex-shrink-0 h-1/4 max-h-1/4 min-h-1/4">
+      <div className="flex flex-col h-full border-2 rounded-lg min-h-full">
+        <div className="border rounded-lg p-2 py-3 text-center text-lg lg:text-xl font-semibold text-ellipsis overflow-hidden">
+          {props.roomID}
+        </div>
+        <div className="grow px-2 h-full overflow-y-scroll no-scrollbar">
+          {messageList &&
+            messageList.length > 0 &&
+            messageList.map((message: RoomMessage, index) => (
+              <ChatMessage key={index} message={message} />
+            ))}
+        </div>
+        {user && (
+          <input
+            type="text"
+            placeholder="Enter your message"
+            className="rounded-lg p-2 m-2"
+            onKeyDown={sendMessage}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setMessageText(event.target.value);
+            }}
+            value={messageText}
+          />
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -86,11 +148,11 @@ function UserWindow(props: {
           // style={{
           //   background: `rgb(${get_average_rgb(userData.imageURL)})`,
           // }}
-          className={`px-2 py-10 md:px-4 lg:px-40 border-2 rounded-lg text-center align-middle ${
+          className={`col-span-2  px-2 py-10 md:px-4 lg:px-40 border-2 rounded-lg text-center align-middle ${
             userListLength == 1 ||
             (index === userListLength - 1 && userListLength % 2 !== 0)
               ? "col-span-2"
-              : ""
+              : "md:col-span-1"
           }`}
         >
           <div className="flex flex-col w-full items-center capitalize">
@@ -108,6 +170,25 @@ function UserWindow(props: {
         </div>
       )}
     </>
+  );
+}
+
+function ChatMessage(props: { message: RoomMessage }) {
+  return (
+    <div className="flex text-sm items-center gap-1 py-1 text-wrap overflow-clip">
+      <Avatar className="rounded-full h-5 w-5 border-2 border-purple-500">
+        <AvatarImage
+          className="rounded-full overflow-hidden"
+          src={props.message.imageURL}
+          alt={props.message.username}
+          sizes="lg"
+        />
+        <AvatarFallback>{props.message.username}</AvatarFallback>
+      </Avatar>
+
+      <div className="font-bold capitalize">{props.message.username}</div>
+      {props.message.messageContent}
+    </div>
   );
 }
 

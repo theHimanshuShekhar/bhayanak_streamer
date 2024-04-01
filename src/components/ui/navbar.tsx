@@ -44,10 +44,7 @@ export default function NavBar() {
     <>
       <nav>
         <div className="flex flex-col sm:flex-row items-center justify-between py-4">
-          <Link
-            href="/"
-            className="flex grow items-center space-x-1 md:space-x-3"
-          >
+          <Link href="/" className="flex items-center space-x-1 md:space-x-3">
             <Avatar>
               <AvatarImage
                 src="https://images.mid-day.com/images/images/2023/sep/andaaz1.jpg"
@@ -60,17 +57,18 @@ export default function NavBar() {
             </span>
           </Link>
 
-          <div className="text-sm mx-4 uppercase font-bold">
-            Online {onlineUsers}
-          </div>
-
-          <div className="flex gap-2 capitalize">
-            <SignedIn>
-              <UserButton showName />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
+          <div className="flex items-center">
+            <div className="text-sm mx-4 uppercase font-bold">
+              Online {onlineUsers}
+            </div>
+            <div className="flex gap-2 capitalize">
+              <SignedIn>
+                <UserButton showName />
+              </SignedIn>
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+            </div>
           </div>
         </div>
       </nav>

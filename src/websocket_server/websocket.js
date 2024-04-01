@@ -62,6 +62,10 @@ io.on("connection", async (socket) => {
     // Join room with roomID
     socket.join(roomID);
   });
+
+  socket.on("sendRoomMessage", (messageData) =>
+    io.in(messageData.roomID).emit("roomMessage", messageData)
+  );
 });
 
 // Update clients by sending new roomList whenever a room is created

@@ -32,11 +32,9 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <div className="flex flex-col min-h-screen p-2 sm:container">
+              <div className="flex flex-col min-h-screen sm:container">
                 <NavBar />
-                <div className="grow min-h-vh overflow-x-auto overflow-y-hidden flex flex-col">
-                  {children}
-                </div>
+                <div className="flex-1 flex">{children}</div>
                 <Footer />
               </div>
             </ThemeProvider>

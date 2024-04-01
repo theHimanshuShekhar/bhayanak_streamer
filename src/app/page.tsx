@@ -70,7 +70,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-between gap-2">
+    <main className="w-full flex flex-col items-center justify-normal gap-2">
       <div className="flex flex-col md:flex-row min-w-full gap-2">
         <SearchBar
           searchTerm={searchTerm}
@@ -84,7 +84,12 @@ export default function Home() {
         </SignedIn>
       </div>
       <div className="text-2xl py-0 h-10">
-        {searchTerm.length > 0 && <>Searching &quot;{searchTerm}&quot;</>}
+        {searchTerm.length > 0 && roomList.length > 0 && (
+          <>Searching &quot;{searchTerm}&quot;</>
+        )}
+        {searchTerm.length === 0 && roomList.length > 0 && (
+          <>{roomList.length} Available Rooms</>
+        )}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 w-full">
         {roomList &&
