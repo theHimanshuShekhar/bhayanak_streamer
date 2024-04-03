@@ -70,7 +70,7 @@ io.on("connection", async (socket) => {
 
 // Update clients by sending new roomList whenever a room is created
 io.of("/").adapter.on("create-room", (room, socket) => {
-  // Donot take action if user leaves their own room
+  // Donot take action if user creates their own room
   if (room === socket) return;
 
   roomListData.push({
@@ -86,7 +86,7 @@ io.of("/").adapter.on("create-room", (room, socket) => {
 
 // Update clients by sending new roomList whenever a room is joined
 io.of("/").adapter.on("join-room", (room, socket) => {
-  // Donot take action if user leaves their own room
+  // Donot take action if user joins their own room
   if (room === socket || socket === undefined) return;
 
   // Leave other rooms when joining current room
@@ -113,7 +113,7 @@ io.of("/").adapter.on("leave-room", (room, socket) => {
 
 // Update clients by sending new roomList whenever a room is deleted
 io.of("/").adapter.on("delete-room", (room, socket) => {
-  // Donot take action if user leaves their own room
+  // Donot take action if user deletes their own room
   if (room === socket || socket === undefined) return;
 
   // Remove deleted room data from roomListData

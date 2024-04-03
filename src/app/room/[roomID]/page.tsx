@@ -1,12 +1,12 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { RoomData, UserData } from "@/lib/interfaces";
 import { useSocketStore } from "@/store/socketStore";
 import { useUser } from "@clerk/nextjs";
 import { useParams } from "next/navigation";
-import { SyntheticEvent, useEffect, useState } from "react";
-import type { Socket } from "socket.io-client";
+import { useEffect, useState } from "react";
 
 export default function RoomComponent() {
   // grab socket from zustand socket store
@@ -21,21 +21,21 @@ export default function RoomComponent() {
   useEffect(() => {
     if (!websocket.connected) websocket.connect();
 
-    // When websocket connection is established
-    websocket.on("connect", () => {
-      console.log(`Socket ${websocket.id} connected to webserver`);
-
-      websocket.emit("joinRoom", roomID);
-
-      websocket.on("roomData", (roomDetails: RoomData) =>
-        setRoomData(roomDetails)
-      );
-    });
-
     return () => {
       websocket.close();
     };
-  }, [roomID, websocket]);
+  }, [websocket]);
+
+  // When websocket connection is established
+  websocket.on("connect", () => {
+    console.log(`Socket ${websocket.id} connected to webserver`);
+
+    websocket.emit("joinRoom", roomID);
+
+    websocket.on("roomData", (roomDetails: RoomData) =>
+      setRoomData(roomDetails)
+    );
+  });
 
   return (
     <>
@@ -96,11 +96,9 @@ function ChatRoom(props: { roomID: string }) {
     setMessageText("");
   };
 
-  useEffect(() => {
-    websocket.on("roomMessage", (roomMessage: RoomMessage) =>
-      setMessageList([...messageList, roomMessage])
-    );
-  }, [messageList, websocket]);
+  websocket.on("roomMessage", (roomMessage: RoomMessage) =>
+    setMessageList([...messageList, roomMessage])
+  );
 
   return (
     <div className="rounded-lg flex-grow flex-shrink-0 h-1/4 max-h-1/4 min-h-1/4">
@@ -141,6 +139,27 @@ function UserWindow(props: {
   const index = props.index;
   const userListLength = props.userListLength;
 
+  // const [captureStream, setCaptureStream] = useState<MediaStream>();
+
+  // const { user } = useUser();
+
+  // async function startCapture() {
+  //   setCaptureStream(
+  //     await window.navigator.mediaDevices.getDisplayMedia({
+  //       video: true,
+  //       audio: {
+  //         echoCancellation: false,
+  //         autoGainControl: false,
+  //         noiseSuppression: false,
+  //       },
+  //     })
+  //   );
+  // }
+
+  // useEffect(() => {
+  //   console.log(captureStream);
+  // }, [captureStream]);
+
   return (
     <>
       {userData && (
@@ -166,6 +185,15 @@ function UserWindow(props: {
               <AvatarFallback>{userData.username}</AvatarFallback>
             </Avatar>
             <div className="text-md">{userData.username}</div>
+            {/* {user && user.username === userData.username && (
+              <Button className="my-1" onClick={startCapture}>
+                Stream
+              </Button>
+            )}
+
+            {captureStream && (
+              <video autoPlay controls className="w-full rounded-lg" />
+            )} */}
           </div>
         </div>
       )}

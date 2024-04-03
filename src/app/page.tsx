@@ -42,18 +42,18 @@ export default function Home() {
 
   useEffect(() => {
     // Explicitly connect to websocket server as autoconnect is turned off
-    // if (!websocket.connected) websocket.connect();
-
-    // Receive roomList from server
-    websocket.on("roomList", (roomListResponse: never[]) =>
-      // Set roomList in state
-      setRoomList(roomListResponse)
-    );
+    if (!websocket.connected) websocket.connect();
 
     return () => {
       websocket.close();
     };
   }, [websocket]);
+
+  // Receive roomList from server
+  websocket.on("roomList", (roomListResponse: never[]) =>
+    // Set roomList in state
+    setRoomList(roomListResponse)
+  );
 
   // Send new room with details to server
   function createNewRoom(event?: any) {
@@ -117,8 +117,6 @@ export default function Home() {
 
 function RoomCard(props: RoomProps) {
   const room = props.room;
-
-  console.log("RoomCard", room);
 
   return (
     <Card className="overflow-hidden text-purple-500 hover:border-4 hover:border-purple-900 hover:cursor-pointer hover:scale-110">
