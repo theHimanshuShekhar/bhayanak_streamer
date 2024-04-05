@@ -40,17 +40,33 @@ export default function RoomComponent() {
   return (
     <>
       {roomData && (
-        <div className="flex-1 flex flex-col gap-1">
-          <div className="w-full overflow-y-scroll no-scrollbar flex-grow-0 flex-shrink-0 h-3/4 max-h-3/4 min-h-3/4">
-            <div className="grid grid-cols-2 gap-2">
+        <div className="flex-1 flex gap-1">
+          <div className="border-2 rounded-lg w-1/6 text-center font-bold h-max pb-4">
+            <div className="text-lg lg:text-xl border p-2 rounded-lg">
+              Connected Users
+            </div>
+            <div className="p-2">
               {roomData.users.map((user, index) => (
-                <UserWindow
-                  user={user}
-                  index={index}
-                  userListLength={roomData.users.length}
-                  key={index}
-                />
+                <UserListItem user={user} key={index} />
               ))}
+            </div>
+          </div>
+          <div className="overflow-y-scroll no-scrollbar grow flex-shrink-0">
+            <div className="flex flex-col gap-2">
+              <LocalStreamController />
+
+              {/* Only show streamers video player (excluding yourself) */}
+              {roomData.users.map(
+                (user, index) => (
+                  <div key={index}>{user.username}</div>
+                )
+                // <UserWindow
+                //   user={user}
+                //   index={index}
+                //   userListLength={roomData.users.length}
+                //   key={index}
+                // />
+              )}
             </div>
           </div>
           {roomID && <ChatRoom roomID={roomID} />}
@@ -60,10 +76,50 @@ export default function RoomComponent() {
   );
 }
 
+function LocalStreamController() {
+  return (
+    <>
+      {/* Only show on your own client */}
+      <div className="flex justify-between items-center border-2 rounded-lg p-1 px-2">
+        <div>Start Streaming</div>
+        <div>
+          <Button className="my-1">Start Stream</Button>
+          <Button className="my-1 bg-red-700">Stop Stream</Button>
+        </div>
+      </div>
+
+      {/* If client starts streaming show local video playback here */}
+      <LocalVideoPlayer />
+    </>
+  );
+}
+
+function LocalVideoPlayer() {
+  return <video src="" className="border-2 rounded-lg" />;
+}
+
 interface RoomMessage {
   username: string;
   imageURL: string;
   messageContent: string;
+}
+
+function UserListItem(props: { user: UserData }) {
+  const user = props.user;
+  return (
+    <div className="flex items-center gap-1 justify-center">
+      <Avatar className="rounded-full h-5 w-5 border-2 border-purple-500">
+        <AvatarImage
+          className="rounded-full overflow-hidden"
+          src={user.imageURL}
+          alt={user.username}
+          sizes="lg"
+        />
+        <AvatarFallback>{user.username}</AvatarFallback>
+      </Avatar>
+      <div className="font-bold capitalize text-md">{user.username}</div>
+    </div>
+  );
 }
 
 function ChatRoom(props: { roomID: string }) {
@@ -105,10 +161,10 @@ function ChatRoom(props: { roomID: string }) {
   });
 
   return (
-    <div className="rounded-lg flex-grow flex-shrink-0 h-1/4 max-h-1/4 min-h-1/4">
+    <div className="w-2/6 rounded-lg">
       <div className="flex flex-col h-full border-2 rounded-lg min-h-full">
         <div className="border rounded-lg p-2 py-3 text-center text-lg lg:text-xl font-semibold text-ellipsis overflow-hidden">
-          {props.roomID}
+          {props.roomID.replaceAll("_", "")}
         </div>
         <div className="grow px-2 h-full overflow-y-scroll no-scrollbar">
           {messageList &&
