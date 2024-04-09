@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 interface DisplayMediaStreamOptions {
   video: boolean | MediaTrackConstraints;
   audio: boolean | MediaTrackConstraints;
-  surfaceSwitching: SurfaceSwitchingPreferenceEnum;
   selfBroswerSurface: boolean;
 }
 
@@ -20,7 +19,6 @@ const captureOptions: DisplayMediaStreamOptions = {
     autoGainControl: false,
     noiseSuppression: false,
   },
-  // surfaceSwitching: SurfaceSwitchingPreferenceEnum.exclude,
   selfBroswerSurface: false,
 };
 
