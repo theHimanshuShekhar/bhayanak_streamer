@@ -1,7 +1,7 @@
 "use client";
 
+import { LocalStreamController } from "@/components/localVideoStreamer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { RoomData, UserData } from "@/lib/interfaces";
 import { useSocketStore } from "@/store/socketStore";
 import { useUser } from "@clerk/nextjs";
@@ -30,7 +30,7 @@ export default function RoomComponent() {
   websocket.on("connect", () => {
     console.log(`Socket ${websocket.id} connected to webserver`);
 
-    websocket.emit("joinRoom", roomID);
+    websocket.emit("joinRoom", roomID?.replaceAll("%20", "_"));
 
     websocket.on("roomData", (roomDetails: RoomData) =>
       setRoomData(roomDetails)
@@ -51,51 +51,19 @@ export default function RoomComponent() {
               ))}
             </div>
           </div>
-          <div className="overflow-y-scroll no-scrollbar grow flex-shrink-0">
-            <div className="flex flex-col gap-2">
-              <LocalStreamController />
+          <div className="overflow-y-scroll no-scrollbar w-3/6 min-w-3/6 max-w-3/6 overflow-hidden flex-shrink-0 flex flex-col gap-2">
+            <LocalStreamController />
 
-              {/* Only show streamers video player (excluding yourself) */}
-              {roomData.users.map(
-                (user, index) => (
-                  <div key={index}>{user.username}</div>
-                )
-                // <UserWindow
-                //   user={user}
-                //   index={index}
-                //   userListLength={roomData.users.length}
-                //   key={index}
-                // />
-              )}
-            </div>
+            {/* Only show streamers video player (excluding yourself) */}
+            {/* {roomData.users.map((user, index) => (
+              <div key={index}>{user.username}</div>
+            ))} */}
           </div>
           {roomID && <ChatRoom roomID={roomID} />}
         </div>
       )}
     </>
   );
-}
-
-function LocalStreamController() {
-  return (
-    <>
-      {/* Only show on your own client */}
-      <div className="flex justify-between items-center border-2 rounded-lg p-1 px-2">
-        <div>Start Streaming</div>
-        <div>
-          <Button className="my-1">Start Stream</Button>
-          <Button className="my-1 bg-red-700">Stop Stream</Button>
-        </div>
-      </div>
-
-      {/* If client starts streaming show local video playback here */}
-      <LocalVideoPlayer />
-    </>
-  );
-}
-
-function LocalVideoPlayer() {
-  return <video src="" className="border-2 rounded-lg" />;
 }
 
 interface RoomMessage {
@@ -164,7 +132,7 @@ function ChatRoom(props: { roomID: string }) {
     <div className="w-2/6 rounded-lg">
       <div className="flex flex-col h-full border-2 rounded-lg min-h-full">
         <div className="border rounded-lg p-2 py-3 text-center text-lg lg:text-xl font-semibold text-ellipsis overflow-hidden">
-          {props.roomID.replaceAll("_", "")}
+          {props.roomID.replaceAll("%20", " ")}
         </div>
         <div className="grow px-2 h-full overflow-y-scroll no-scrollbar">
           {messageList &&
@@ -188,103 +156,6 @@ function ChatRoom(props: { roomID: string }) {
         )}
       </div>
     </div>
-  );
-}
-
-function UserWindow(props: {
-  user: UserData;
-  index: number;
-  userListLength: number;
-}) {
-  const userData = props.user;
-  const index = props.index;
-  const userListLength = props.userListLength;
-
-  const [captureStream, setCaptureStream] = useState<MediaStream>();
-
-  const { user } = useUser();
-
-  async function startCapture() {
-    try {
-      setCaptureStream(
-        await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: {
-            echoCancellation: false,
-            autoGainControl: false,
-            noiseSuppression: false,
-          },
-        })
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  return (
-    <>
-      {userData && (
-        <div
-          // style={{
-          //   background: `rgb(${get_average_rgb(userData.imageURL)})`,
-          // }}
-          className={`col-span-2 ${
-            !captureStream || !captureStream.active
-              ? "px-2 py-10 md:px-4 lg:px-40"
-              : ""
-          } border-2 rounded-lg text-center align-middle ${
-            userListLength == 1 ||
-            (index === userListLength - 1 && userListLength % 2 !== 0)
-              ? "col-span-2"
-              : "md:col-span-1"
-          }`}
-        >
-          <div className="flex flex-col w-ful h-full justify-center items-center capitalize gap-1">
-            {(!captureStream || !captureStream.active) && (
-              <Avatar className="rounded-full h-24 w-24 border-4 border-purple-500">
-                <AvatarImage
-                  className="rounded-full overflow-hidden"
-                  src={userData.imageURL}
-                  alt={userData.username}
-                  sizes="lg"
-                />
-                <AvatarFallback>{userData.username}</AvatarFallback>
-              </Avatar>
-            )}
-
-            {(!captureStream || !captureStream.active) &&
-              user &&
-              user.username === userData.username && (
-                <>
-                  <div className="text-md">{userData.username}</div>
-                  <Button className="my-1" onClick={startCapture}>
-                    Stream
-                  </Button>
-                </>
-              )}
-
-            {captureStream && captureStream.active && (
-              <VideoPlayer stream={captureStream} />
-            )}
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-function VideoPlayer(props: { stream: MediaStream }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    // Bind MediaSource to video element
-    if (props.stream && videoRef.current) {
-      videoRef.current.srcObject = props.stream;
-    }
-  }, [props.stream]);
-
-  return (
-    <video ref={videoRef} autoPlay controls className="w-full rounded-lg" />
   );
 }
 

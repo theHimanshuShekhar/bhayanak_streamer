@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { SearchBar } from "@/components/ui/searchBar";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import moment from "moment";
@@ -21,6 +20,7 @@ import Link from "next/link";
 import { useSocketStore } from "@/store/socketStore";
 import type { Socket } from "socket.io-client";
 import { useRouter } from "next/navigation";
+import { SearchBar } from "@/components/searchBar";
 
 export const dynamic = "force-dynamic";
 

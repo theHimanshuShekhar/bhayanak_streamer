@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { shadesOfPurple } from "@clerk/themes";
-import NavBar from "@/components/ui/navbar";
-import Footer from "@/components/ui/footer";
+import NavBar from "@/components/navbar";
+import Footer from "@/components/footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
