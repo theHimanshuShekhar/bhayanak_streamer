@@ -67,10 +67,6 @@ export default function RoomComponent() {
           </div>
           <div className="overflow-y-scroll no-scrollbar w-3/6 min-w-3/6 max-w-3/6 overflow-hidden flex-shrink-0 flex flex-col gap-2">
             <LocalStreamController roomID={roomID} />
-            {/* Only show streamers video player (excluding yourself) */}
-            {/* {roomData.users.map((user, index) => (
-              <div key={index}>{user.username}</div>
-            ))} */}
             {streamers.map((streamerID) => (
               <div key={streamerID}>
                 {streamerID}&apos;s Stream

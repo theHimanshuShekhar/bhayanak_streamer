@@ -20,25 +20,23 @@ export default function NavBar() {
     // Explicitly connect to websocket server as autoconnect is turned off
     if (!websocket.connected) websocket.connect();
 
-    websocket.on("connect", () => {
-      if (user && user.username) {
-        const userData: UserData = {
-          imageURL: user.imageUrl,
-          username: user.username,
-        };
-
-        websocket.emit("updateUserData", userData);
-      }
-    });
-
-    websocket.on("onlineUsers", (userCount: number) =>
-      setOnlineUsers(userCount)
-    );
-
     return () => {
       websocket.close();
     };
   }, [websocket, user, isSignedIn, isLoaded]);
+
+  websocket.on("connect", () => {
+    if (user && user.fullName && user.username) {
+      const userData: UserData = {
+        imageURL: user.imageUrl,
+        username: user.fullName || user.username,
+      };
+
+      websocket.emit("updateUserData", userData);
+    }
+  });
+
+  websocket.on("onlineUsers", (userCount: number) => setOnlineUsers(userCount));
 
   return (
     <>
