@@ -3,9 +3,7 @@
 import { io } from "socket.io-client";
 import { create } from "zustand";
 
-const env = process.env;
-
-const websocket = io(env.NEXT_PUBLIC_WEBSOCKET_SERVER, {
+const websocket = io("https://websocket_streamer.bhayanak.net/", {
   autoConnect: false,
 });
 
