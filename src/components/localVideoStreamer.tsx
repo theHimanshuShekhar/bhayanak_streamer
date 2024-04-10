@@ -51,7 +51,7 @@ export function LocalStreamController(props: { roomID: string }) {
   return (
     <>
       {/* Only show on your own client */}
-      <div className="flex justify-between items-center border-2 rounded-lg p-1 px-2 w-full max-w-full">
+      <div className="flex justify-between items-center border-2 rounded-lg p-1 px-2 w-full max-w-full bg-gray-900">
         {(!captureStream || (captureStream && !captureStream.active)) && (
           <div>Start Streaming</div>
         )}
@@ -89,7 +89,10 @@ export function LocalStreamController(props: { roomID: string }) {
 
       {/* If client starts streaming show local video playback here */}
       {captureStream && captureStream.active && (
-        <VideoPlayer stream={captureStream} />
+        <div className="border-2 rounded-lg bg-gray-900 font-semibold">
+          <div className="p-1 text-red-700 uppercase">Stream Preview</div>
+          <VideoPlayer stream={captureStream} />
+        </div>
       )}
     </>
   );
