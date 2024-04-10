@@ -66,6 +66,16 @@ io.on("connection", async (socket) => {
   socket.on("sendRoomMessage", (messageData) =>
     io.in(messageData.roomID).emit("roomMessage", messageData)
   );
+
+  socket.on("startStream", (roomID) => {
+    console.log(`${socket.id} started streaming in ${roomID}`);
+    socket.to(roomID).emit("roomStreamStart", socket.id);
+  });
+
+  socket.on("stopStream", (roomID) => {
+    console.log(`${socket.id} stopped streaming in ${roomID}`);
+    socket.to(roomID).emit("roomStreamStop", socket.id);
+  });
 });
 
 // Update clients by sending new roomList whenever a room is created

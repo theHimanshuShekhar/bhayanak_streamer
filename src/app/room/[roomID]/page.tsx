@@ -39,7 +39,7 @@ export default function RoomComponent() {
 
   return (
     <>
-      {roomData && (
+      {roomID && roomData && (
         <div className="flex-1 flex gap-1">
           <div className="border-2 rounded-lg w-1/6 text-center font-bold h-max pb-4">
             <div className="text-lg lg:text-xl border p-2 rounded-lg">
@@ -52,7 +52,7 @@ export default function RoomComponent() {
             </div>
           </div>
           <div className="overflow-y-scroll no-scrollbar w-3/6 min-w-3/6 max-w-3/6 overflow-hidden flex-shrink-0 flex flex-col gap-2">
-            <LocalStreamController />
+            <LocalStreamController roomID={roomID} />
 
             {/* Only show streamers video player (excluding yourself) */}
             {/* {roomData.users.map((user, index) => (

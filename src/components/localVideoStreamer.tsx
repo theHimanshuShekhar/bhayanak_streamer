@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
+import { useSocketStore } from "@/store/socketStore";
 
 interface DisplayMediaStreamOptions {
   video: boolean | MediaTrackConstraints;
@@ -17,8 +18,14 @@ const captureOptions: DisplayMediaStreamOptions = {
   selfBroswerSurface: false,
 };
 
-export function LocalStreamController() {
+export function LocalStreamController(props: { roomID: string }) {
   const [captureStream, setCaptureStream] = useState<MediaStream>();
+  const [streamers, setStreamers] = useState<string[]>([]);
+
+  useEffect(() => console.log(streamers), [streamers]);
+
+  // grab socket from zustand socket store
+  const websocket = useSocketStore((state) => state.socket);
 
   async function startCapture() {
     try {
@@ -28,6 +35,8 @@ export function LocalStreamController() {
     } catch (error) {
       console.error(error);
     }
+
+    websocket.emit("startStream", props.roomID);
   }
 
   async function stopCapture() {
@@ -37,7 +46,19 @@ export function LocalStreamController() {
     } catch (error) {
       console.error(error);
     }
+
+    websocket.emit("stopStream", props.roomID);
   }
+
+  websocket.on("roomStreamStart", (streamerID) => {
+    console.log(`${streamerID} started streaming`);
+    setStreamers([...streamers, streamerID]);
+  });
+
+  websocket.on("roomStreamStop", (streamerID) => {
+    console.log(`${streamerID} stopped streaming`);
+    setStreamers(streamers.filter((streamer) => streamer !== streamerID));
+  });
 
   return (
     <>
