@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { useSocketStore } from "@/store/socketStore";
+import { VideoPlayer } from "./streamVideoPlayer";
 
 interface DisplayMediaStreamOptions {
   video: boolean | MediaTrackConstraints;
@@ -20,9 +21,6 @@ const captureOptions: DisplayMediaStreamOptions = {
 
 export function LocalStreamController(props: { roomID: string }) {
   const [captureStream, setCaptureStream] = useState<MediaStream>();
-  const [streamers, setStreamers] = useState<string[]>([]);
-
-  useEffect(() => console.log(streamers), [streamers]);
 
   // grab socket from zustand socket store
   const websocket = useSocketStore((state) => state.socket);
@@ -49,16 +47,6 @@ export function LocalStreamController(props: { roomID: string }) {
 
     websocket.emit("stopStream", props.roomID);
   }
-
-  websocket.on("roomStreamStart", (streamerID) => {
-    console.log(`${streamerID} started streaming`);
-    setStreamers([...streamers, streamerID]);
-  });
-
-  websocket.on("roomStreamStop", (streamerID) => {
-    console.log(`${streamerID} stopped streaming`);
-    setStreamers(streamers.filter((streamer) => streamer !== streamerID));
-  });
 
   return (
     <>
@@ -106,105 +94,3 @@ export function LocalStreamController(props: { roomID: string }) {
     </>
   );
 }
-
-function VideoPlayer(props: { stream: MediaStream }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    // Bind MediaSource to video element
-    if (props.stream && videoRef.current) {
-      videoRef.current.srcObject = props.stream;
-    }
-  }, [props.stream]);
-
-  return (
-    <video
-      ref={videoRef}
-      autoPlay
-      controls
-      className="border-2 rounded-lg object-cover aspect-video "
-    />
-  );
-}
-
-// function UserWindow(props: {
-//   user: UserData;
-//   index: number;
-//   userListLength: number;
-// }) {
-//   const userData = props.user;
-//   const index = props.index;
-//   const userListLength = props.userListLength;
-
-//   const [captureStream, setCaptureStream] = useState<MediaStream>();
-
-//   const { user } = useUser();
-
-//   async function startCapture() {
-//     try {
-//       setCaptureStream(
-//         await navigator.mediaDevices.getDisplayMedia({
-//           video: true,
-//           audio: {
-//             echoCancellation: false,
-//             autoGainControl: false,
-//             noiseSuppression: false,
-//           },
-//         })
-//       );
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   }
-
-//   return (
-//     <>
-//       {userData && (
-//         <div
-//           // style={{
-//           //   background: `rgb(${get_average_rgb(userData.imageURL)})`,
-//           // }}
-//           className={`col-span-2 ${
-//             !captureStream || !captureStream.active
-//               ? "px-2 py-10 md:px-4 lg:px-40"
-//               : ""
-//           } border-2 rounded-lg text-center align-middle ${
-//             userListLength == 1 ||
-//             (index === userListLength - 1 && userListLength % 2 !== 0)
-//               ? "col-span-2"
-//               : "md:col-span-1"
-//           }`}
-//         >
-//           <div className="flex flex-col w-ful h-full justify-center items-center capitalize gap-1">
-//             {(!captureStream || !captureStream.active) && (
-//               <Avatar className="rounded-full h-24 w-24 border-4 border-purple-500">
-//                 <AvatarImage
-//                   className="rounded-full overflow-hidden"
-//                   src={userData.imageURL}
-//                   alt={userData.username}
-//                   sizes="lg"
-//                 />
-//                 <AvatarFallback>{userData.username}</AvatarFallback>
-//               </Avatar>
-//             )}
-
-//             {(!captureStream || !captureStream.active) &&
-//               user &&
-//               user.username === userData.username && (
-//                 <>
-//                   <div className="text-md">{userData.username}</div>
-//                   <Button className="my-1" onClick={startCapture}>
-//                     Stream
-//                   </Button>
-//                 </>
-//               )}
-
-//             {captureStream && captureStream.active && (
-//               <VideoPlayer stream={captureStream} />
-//             )}
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// }

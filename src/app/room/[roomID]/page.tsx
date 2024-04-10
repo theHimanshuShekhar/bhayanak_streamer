@@ -1,6 +1,7 @@
 "use client";
 
 import { LocalStreamController } from "@/components/localVideoStreamer";
+import { VideoPlayer } from "@/components/streamVideoPlayer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RoomData, UserData } from "@/lib/interfaces";
 import { useSocketStore } from "@/store/socketStore";
@@ -11,6 +12,9 @@ import { useEffect, useRef, useState } from "react";
 export default function RoomComponent() {
   // grab socket from zustand socket store
   const websocket = useSocketStore((state) => state.socket);
+  const [streamers, setStreamers] = useState<string[]>([]);
+
+  useEffect(() => console.log(streamers), [streamers]);
 
   const params = useParams();
 
@@ -37,6 +41,16 @@ export default function RoomComponent() {
     );
   });
 
+  websocket.on("roomStreamStart", (streamerID) => {
+    console.log(`${streamerID} started streaming`);
+    setStreamers([...streamers, streamerID]);
+  });
+
+  websocket.on("roomStreamStop", (streamerID) => {
+    console.log(`${streamerID} stopped streaming`);
+    setStreamers(streamers.filter((streamer) => streamer !== streamerID));
+  });
+
   return (
     <>
       {roomID && roomData && (
@@ -53,11 +67,16 @@ export default function RoomComponent() {
           </div>
           <div className="overflow-y-scroll no-scrollbar w-3/6 min-w-3/6 max-w-3/6 overflow-hidden flex-shrink-0 flex flex-col gap-2">
             <LocalStreamController roomID={roomID} />
-
             {/* Only show streamers video player (excluding yourself) */}
             {/* {roomData.users.map((user, index) => (
               <div key={index}>{user.username}</div>
             ))} */}
+            {streamers.map((streamerID) => (
+              <div key={streamerID}>
+                {streamerID}&apos;s Stream
+                <VideoPlayer stream={new MediaStream()} />
+              </div>
+            ))}
           </div>
           {roomID && <ChatRoom roomID={roomID} />}
         </div>
