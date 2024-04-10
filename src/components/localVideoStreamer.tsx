@@ -7,11 +7,6 @@ interface DisplayMediaStreamOptions {
   selfBroswerSurface: boolean;
 }
 
-enum SurfaceSwitchingPreferenceEnum {
-  include,
-  exclude,
-}
-
 const captureOptions: DisplayMediaStreamOptions = {
   video: true,
   audio: {
