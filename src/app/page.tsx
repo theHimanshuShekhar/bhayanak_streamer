@@ -119,7 +119,7 @@ function RoomCard(props: RoomProps) {
   const room = props.room;
 
   return (
-    <Card className="overflow-hidden text-purple-500 hover:border-4 hover:border-purple-900 hover:cursor-pointer hover:scale-110">
+    <Card className="overflow-hidden border-4 text-purple-500 hover:border-purple-900 bg-gray-900 hover:cursor-pointer hover:scale-110">
       <CardContent className="p-0">
         <img
           src="https://images.mid-day.com/images/images/2023/sep/andaaz1.jpg"

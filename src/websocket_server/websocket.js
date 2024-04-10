@@ -15,6 +15,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Store created room data
 roomListData = [];
+active_streamers = {};
 userData = {};
 
 // Whenever a new socket connects
@@ -69,12 +70,27 @@ io.on("connection", async (socket) => {
 
   socket.on("startStream", (roomID) => {
     console.log(`${socket.id} started streaming in ${roomID}`);
+
+    if (!active_streamers[roomID]) active_streamers[roomID] = [];
+
+    active_streamers[roomID] = Array.from(
+      new Set([...active_streamers[roomID], socket.id])
+    );
+
     socket.to(roomID).emit("roomStreamStart", socket.id);
+
+    console.log(active_streamers);
   });
 
   socket.on("stopStream", (roomID) => {
     console.log(`${socket.id} stopped streaming in ${roomID}`);
     socket.to(roomID).emit("roomStreamStop", socket.id);
+
+    active_streamers[roomID] = active_streamers[roomID].filter(
+      (streamer) => streamer !== socket.id
+    );
+
+    console.log(active_streamers);
   });
 });
 
@@ -174,6 +190,9 @@ async function updateRoomUsers(roomID) {
   };
 
   io.to(roomID).emit("roomData", roomDataResponse);
+
+  // Send list of active streamers to room users
+  io.to(roomID).emit("activeStreamerList", active_streamers[roomID]);
 }
 
 // Send roomList

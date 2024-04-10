@@ -39,6 +39,10 @@ export default function RoomComponent() {
     websocket.on("roomData", (roomDetails: RoomData) =>
       setRoomData(roomDetails)
     );
+
+    websocket.on("activeStreamerList", (activeStreamerList) =>
+      setStreamers(Array.from(new Set([...streamers, activeStreamerList])))
+    );
   });
 
   websocket.on("roomStreamStart", (streamerID) => {
@@ -55,7 +59,7 @@ export default function RoomComponent() {
     <>
       {roomID && roomData && (
         <div className="flex-1 flex gap-1">
-          <div className="border-2 rounded-lg w-1/6 text-center font-bold h-max pb-4">
+          <div className="border-2 rounded-lg w-1/6 text-center font-bold h-max pb-4 bg-gray-900">
             <div className="text-lg lg:text-xl border p-2 rounded-lg">
               Connected Users
             </div>
@@ -68,8 +72,11 @@ export default function RoomComponent() {
           <div className="overflow-y-scroll no-scrollbar w-3/6 min-w-3/6 max-w-3/6 overflow-hidden flex-shrink-0 flex flex-col gap-2">
             <LocalStreamController roomID={roomID} />
             {streamers.map((streamerID) => (
-              <div key={streamerID}>
-                {streamerID}&apos;s Stream
+              <div
+                key={streamerID}
+                className="border-2 rounded-lg bg-gray-900 font-semibold"
+              >
+                <div className="p-1">{streamerID}&apos;s Stream</div>
                 <VideoPlayer stream={new MediaStream()} />
               </div>
             ))}
@@ -129,7 +136,7 @@ function ChatRoom(props: { roomID: string }) {
 
     websocket.emit("sendRoomMessage", {
       roomID: props.roomID,
-      username: user.username,
+      username: user.fullName || user.username,
       imageURL: user.imageUrl,
       messageContent: messageText,
     });
@@ -144,7 +151,7 @@ function ChatRoom(props: { roomID: string }) {
   });
 
   return (
-    <div className="w-2/6 rounded-lg">
+    <div className="w-2/6 rounded-lg bg-gray-900">
       <div className="flex flex-col h-full border-2 rounded-lg min-h-full">
         <div className="border rounded-lg p-2 py-3 text-center text-lg lg:text-xl font-semibold text-ellipsis overflow-hidden">
           {props.roomID.replaceAll("%20", " ")}
