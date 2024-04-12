@@ -3,7 +3,7 @@
 import { LocalStreamController } from "@/components/localVideoStreamer";
 import { VideoPlayer } from "@/components/streamVideoPlayer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { RoomData, UserData } from "@/lib/interfaces";
+import { RoomData, Streamer, UserData } from "@/lib/interfaces";
 import { useSocketStore } from "@/store/socketStore";
 import { useUser } from "@clerk/nextjs";
 import { useParams } from "next/navigation";
@@ -12,9 +12,9 @@ import { useEffect, useRef, useState } from "react";
 export default function RoomComponent() {
   // grab socket from zustand socket store
   const websocket = useSocketStore((state) => state.socket);
-  const [streamers, setStreamers] = useState<string[]>([]);
+  const [streamers, setStreamers] = useState<Streamer[]>([]);
 
-  useEffect(() => console.log(streamers), [streamers]);
+  useEffect(() => {}, [streamers]);
 
   const params = useParams();
 
@@ -40,19 +40,14 @@ export default function RoomComponent() {
       setRoomData(roomDetails)
     );
 
-    websocket.on("activeStreamerList", (activeStreamerList) =>
-      setStreamers(Array.from(new Set([...streamers, activeStreamerList])))
-    );
-  });
-
-  websocket.on("roomStreamStart", (streamerID) => {
-    console.log(`${streamerID} started streaming`);
-    setStreamers([...streamers, streamerID]);
-  });
-
-  websocket.on("roomStreamStop", (streamerID) => {
-    console.log(`${streamerID} stopped streaming`);
-    setStreamers(streamers.filter((streamer) => streamer !== streamerID));
+    websocket.on("activeStreamerList", (activeStreamerList: Streamer[]) => {
+      if (activeStreamerList === null) return;
+      setStreamers(
+        activeStreamerList.filter(
+          (streamer) => streamer.streamerID !== websocket.id
+        )
+      );
+    });
   });
 
   return (
@@ -71,15 +66,16 @@ export default function RoomComponent() {
           </div>
           <div className="overflow-y-scroll no-scrollbar w-3/6 min-w-3/6 max-w-3/6 overflow-hidden flex-shrink-0 flex flex-col gap-2">
             <LocalStreamController roomID={roomID} />
-            {streamers.map((streamerID) => (
-              <div
-                key={streamerID}
-                className="border-2 rounded-lg bg-gray-900 font-semibold"
-              >
-                <div className="p-1">{streamerID}&apos;s Stream</div>
-                <VideoPlayer stream={new MediaStream()} />
-              </div>
-            ))}
+            {streamers &&
+              streamers.length > 0 &&
+              streamers.map((streamer) => (
+                <div
+                  key={streamer.streamerID}
+                  className="border-2 rounded-lg bg-gray-900 font-semibold"
+                >
+                  <VideoPlayer streamer={streamer} />
+                </div>
+              ))}
           </div>
           {roomID && <ChatRoom roomID={roomID} />}
         </div>
@@ -97,18 +93,22 @@ interface RoomMessage {
 function UserListItem(props: { user: UserData }) {
   const user = props.user;
   return (
-    <div className="flex items-center gap-1 justify-center">
-      <Avatar className="rounded-full h-5 w-5 border-2 border-purple-500">
-        <AvatarImage
-          className="rounded-full overflow-hidden"
-          src={user.imageURL}
-          alt={user.username}
-          sizes="lg"
-        />
-        <AvatarFallback>{user.username}</AvatarFallback>
-      </Avatar>
-      <div className="font-bold capitalize text-md">{user.username}</div>
-    </div>
+    <>
+      {user && (
+        <div className="flex gap-1 items-center">
+          <Avatar className="rounded-full h-5 w-5 border-2 border-purple-500">
+            <AvatarImage
+              className="rounded-full overflow-hidden"
+              src={user.imageURL}
+              alt={user.username}
+              sizes="lg"
+            />
+            <AvatarFallback>{user.username}</AvatarFallback>
+          </Avatar>
+          <div className="font-bold capitalize text-md">{user.username}</div>
+        </div>
+      )}
+    </>
   );
 }
 

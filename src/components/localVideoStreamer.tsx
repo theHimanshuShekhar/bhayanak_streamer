@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { useSocketStore } from "@/store/socketStore";
 import { VideoPlayer } from "./streamVideoPlayer";
+import { useUser } from "@clerk/nextjs";
 
 interface DisplayMediaStreamOptions {
   video: boolean | MediaTrackConstraints;
@@ -22,10 +23,13 @@ const captureOptions: DisplayMediaStreamOptions = {
 export function LocalStreamController(props: { roomID: string }) {
   const [captureStream, setCaptureStream] = useState<MediaStream>();
 
+  const { user, isLoaded, isSignedIn } = useUser();
+
   // grab socket from zustand socket store
   const websocket = useSocketStore((state) => state.socket);
 
   async function startCapture() {
+    if (!isLoaded || !isSignedIn) return;
     try {
       setCaptureStream(
         await navigator.mediaDevices.getDisplayMedia(captureOptions)
@@ -34,7 +38,11 @@ export function LocalStreamController(props: { roomID: string }) {
       console.error(error);
     }
 
-    websocket.emit("startStream", props.roomID);
+    websocket.emit("startStream", {
+      roomID: props.roomID,
+      username: user?.fullName,
+      displayURL: user?.imageUrl,
+    });
   }
 
   async function stopCapture() {

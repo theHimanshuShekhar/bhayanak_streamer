@@ -14,3 +14,9 @@ export interface UserData {
   imageURL: string;
   username: string;
 }
+
+export interface Streamer {
+  streamerID: string;
+  username: string;
+  displayURL: string;
+}

@@ -68,29 +68,31 @@ io.on("connection", async (socket) => {
     io.in(messageData.roomID).emit("roomMessage", messageData)
   );
 
-  socket.on("startStream", (roomID) => {
+  socket.on("startStream", ({ roomID, username, displayURL }) => {
     console.log(`${socket.id} started streaming in ${roomID}`);
 
     if (!active_streamers[roomID]) active_streamers[roomID] = [];
 
     active_streamers[roomID] = Array.from(
-      new Set([...active_streamers[roomID], socket.id])
+      new Set([
+        ...active_streamers[roomID],
+        { streamerID: socket.id, username: username, displayURL: displayURL },
+      ])
     );
 
-    socket.to(roomID).emit("roomStreamStart", socket.id);
-
-    console.log(active_streamers);
+    // update everyone in room
+    updateRoomUsers(roomID);
   });
 
   socket.on("stopStream", (roomID) => {
     console.log(`${socket.id} stopped streaming in ${roomID}`);
-    socket.to(roomID).emit("roomStreamStop", socket.id);
 
     active_streamers[roomID] = active_streamers[roomID].filter(
-      (streamer) => streamer !== socket.id
+      (streamer) => streamer.streamerID !== socket.id
     );
 
-    console.log(active_streamers);
+    // update everyone in room
+    updateRoomUsers(roomID);
   });
 });
 
