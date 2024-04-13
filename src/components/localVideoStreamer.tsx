@@ -1,8 +1,12 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { useSocketStore } from "@/store/socketStore";
 import { VideoPlayer } from "./streamVideoPlayer";
 import { useUser } from "@clerk/nextjs";
+import { peerSendData, webRTCConfiguration } from "@/lib/interfaces";
+import { Peer, type DataConnection } from "peerjs";
 
 interface DisplayMediaStreamOptions {
   video: boolean | MediaTrackConstraints;
@@ -21,9 +25,11 @@ const captureOptions: DisplayMediaStreamOptions = {
 };
 
 export function LocalStreamController(props: { roomID: string }) {
-  const [captureStream, setCaptureStream] = useState<MediaStream>();
+  let [captureStream, setCaptureStream] = useState<MediaStream>();
 
   const { user, isLoaded, isSignedIn } = useUser();
+
+  // const [viewers, setViewers] = useState<string[]>([]);
 
   // grab socket from zustand socket store
   const websocket = useSocketStore((state) => state.socket);
@@ -36,6 +42,9 @@ export function LocalStreamController(props: { roomID: string }) {
       );
     } catch (error) {
       console.error(error);
+      setCaptureStream(undefined);
+
+      stopCapture();
     }
 
     websocket.emit("startStream", {
@@ -55,6 +64,67 @@ export function LocalStreamController(props: { roomID: string }) {
 
     websocket.emit("stopStream", props.roomID);
   }
+
+  let connectionRef = useRef<DataConnection>();
+
+  useEffect(() => {
+    if (!websocket.connected) websocket.connect();
+
+    if (!websocket.id) return;
+
+    if (!captureStream) return;
+
+    let streamerPeer = new Peer(websocket.id, {
+      config: webRTCConfiguration,
+      host: "localhost",
+      port: 9000,
+      path: "/PeerServer",
+    });
+
+    streamerPeer.on("open", (id) =>
+      console.log(`streamerPeer created with id: ${id}`)
+    );
+
+    streamerPeer.on("connection", (connection) => {
+      console.log("Connection Open", connection);
+
+      const onDataReceived = (data: peerSendData) => {
+        if (!data || !data.type) return;
+        if (data.type === "handshake") {
+          console.log(data.message, data.viewerPeerID);
+        }
+
+        if (data.type === "requestForStream") {
+          console.log(
+            "Call ViewerPeer with stream",
+            captureStream,
+            captureStream.getTracks()
+          );
+          streamerPeer.call(data.viewerPeerID, captureStream);
+        }
+      };
+
+      connection.on("data", onDataReceived as (data: unknown) => void);
+
+      connection.on("open", () => {
+        console.log("Connection established to ViewerPeer", connection);
+        connection.send({
+          type: "handshake",
+          viewerPeerID: websocket.id,
+          message: "Handshake from StreamerPeer",
+        });
+      });
+
+      connectionRef.current = connection;
+    });
+
+    return () => {
+      streamerPeer.disconnect();
+      streamerPeer.destroy();
+      connectionRef.current?.close();
+      websocket.disconnect();
+    };
+  }, [captureStream, websocket]);
 
   return (
     <>

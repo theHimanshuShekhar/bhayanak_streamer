@@ -87,6 +87,8 @@ io.on("connection", async (socket) => {
   socket.on("stopStream", (roomID) => {
     console.log(`${socket.id} stopped streaming in ${roomID}`);
 
+    if (active_streamers[roomID] === undefined) return;
+
     active_streamers[roomID] = active_streamers[roomID].filter(
       (streamer) => streamer.streamerID !== socket.id
     );
@@ -245,4 +247,13 @@ httpServer.listen(5000, () => {
   // Disconnect all dangling sockets on server start
   io.disconnectSockets();
   console.log(`Server is listening to the port ${httpServer.address().port}`);
+});
+
+const { PeerServer } = require("peer");
+
+const peerServer = PeerServer({
+  port: 9000,
+  path: "/PeerServer",
+  allow_discovery: true,
+  // proxied: true,
 });
