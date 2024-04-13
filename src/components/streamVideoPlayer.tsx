@@ -28,9 +28,9 @@ export function VideoPlayer(props: {
 
     let viewerPeer = new Peer(websocket.id, {
       config: webRTCConfiguration,
-      host: "144.24.127.254",
-      port: 9000,
-      path: "/",
+      // host: "144.24.127.254",
+      // port: 9000,
+      // path: "/",
     });
 
     viewerPeer.on("open", (id) =>

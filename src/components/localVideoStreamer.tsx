@@ -76,9 +76,9 @@ export function LocalStreamController(props: { roomID: string }) {
 
     let streamerPeer = new Peer(websocket.id, {
       config: webRTCConfiguration,
-      host: "144.24.127.254",
-      port: 9000,
-      path: "/",
+      // host: "144.24.127.254",
+      // port: 9000,
+      // path: "/",
     });
 
     streamerPeer.on("open", (id) =>
