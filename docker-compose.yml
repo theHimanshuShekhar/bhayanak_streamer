@@ -19,6 +19,6 @@ services:
     container_name: peer_server
     image: peerjs/peerjs-server
     environment:
-      PEERSERVER_PATH: "/PeerServer"
+      PROXIED: true
     ports:
       - 9000:9000
