@@ -20,6 +20,7 @@ services:
   peer_server:
     container_name: peer_server
     image: peerjs/peerjs-server
+    restart: unless-stopped
     environment:
       PEERSERVER_PATH: "/"
       PROXIED: true
