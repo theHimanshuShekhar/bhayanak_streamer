@@ -24,6 +24,5 @@ services:
     environment:
       PEERSERVER_PATH: "/"
       PROXIED: true
-      DEBUG: true
     ports:
       - 9000:9000
