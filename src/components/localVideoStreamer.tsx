@@ -94,7 +94,7 @@ export function LocalStreamController(props: { roomID: string }) {
           console.log(data.message, data.viewerPeerID);
         }
 
-        if (data.type === "requestForStream") {
+        if (data.type === "requestForStream" && captureStream) {
           console.log(
             "Call ViewerPeer with stream",
             captureStream,
