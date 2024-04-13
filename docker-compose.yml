@@ -14,4 +14,11 @@ services:
     restart: unless-stopped
     ports:
       - 5000:5000
+
+  peer_server:
+    container_name: peer_server
+    image: peerjs/peerjs-server
+    environment:
+      PEERSERVER_PATH: "/PeerServer"
+    ports:
       - 9000:9000

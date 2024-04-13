@@ -248,12 +248,3 @@ httpServer.listen(5000, () => {
   io.disconnectSockets();
   console.log(`Server is listening to the port ${httpServer.address().port}`);
 });
-
-const { PeerServer } = require("peer");
-
-const peerServer = PeerServer({
-  port: 9000,
-  path: "/PeerServer",
-  allow_discovery: true,
-  // proxied: true,
-});
