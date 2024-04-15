@@ -239,7 +239,12 @@ async function emitRoomList() {
 
 // Serve HTML file when user accesses the server from a browser
 app.get("/", (req, res) => {
-  res.send("<h1>Bhayanak Streamer Websocket server</h1>");
+  res.send(`
+  <h1>Bhayanak Streamer Websocket server</h1>
+  <div>${roomListData.join(" ")}</div>
+  <div>${JSON.stringify(active_streamers)}</div>
+  <div>${JSON.stringify(userData)}</div>
+  `);
 });
 
 // Server is listening on PORT 5000

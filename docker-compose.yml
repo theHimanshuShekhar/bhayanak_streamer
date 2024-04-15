@@ -16,13 +16,3 @@ services:
     restart: unless-stopped
     ports:
       - 5000:5000
-
-  # peer_server:
-  #   container_name: peer_server
-  #   image: peerjs/peerjs-server
-  #   restart: unless-stopped
-  #   environment:
-  #     PEERSERVER_PATH: "/"
-  #     PROXIED: true
-  #   ports:
-  #     - 9000:9000
