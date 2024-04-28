@@ -5,7 +5,7 @@ export function VideoPlayer(props: { stream: MediaStream }) {
 
   useEffect(() => {
     // Bind MediaSource to video element
-    if (props.stream && videoRef.current) {
+    if (props.stream && props.stream.active && videoRef.current) {
       videoRef.current.srcObject = props.stream;
     }
   }, [props.stream]);

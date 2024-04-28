@@ -192,7 +192,8 @@ async function updateRoomUsers(roomID) {
   io.to(roomID).emit("roomData", roomDataResponse);
 
   // Send list of active streamers to room users
-  io.to(roomID).emit("activeStreamerList", active_streamers[roomID]);
+  if (active_streamers[roomID])
+    io.to(roomID).emit("activeStreamerList", active_streamers[roomID]);
 }
 
 // Send roomList
